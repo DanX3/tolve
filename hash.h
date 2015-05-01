@@ -6,6 +6,8 @@
 #define HASH_H
 
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "common.h"
 #include "lista.h"
