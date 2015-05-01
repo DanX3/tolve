@@ -13,7 +13,8 @@
 #include "lista.h"
 
 /* numero primo */
-#define HL 997 
+//#define HL 997 
+#define HL 37 
 
 typedef lista * hash_t;
 
@@ -76,9 +77,8 @@ void * CERCAHASH(char * key, hash_t H) {
 // inserisce l'elemento hdata_t * nella tabella hash H
 
 void INSERISCIHASH (char * key, hdata_t * elem, hash_t H) {
-  int i;
   posizione p;
-  i = hashfunc(key);
+  int i = hashfunc(key);
   if ( CERCAHASH(key, H) == NULL ) {
     p = PRIMOLISTA(H[i]);
     INSLISTA((void *)elem, &p); 

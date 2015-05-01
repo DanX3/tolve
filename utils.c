@@ -7,14 +7,15 @@
 #include "hash.h" //!Keep this for including string stdio and stdlib
 
 #define DELIM_CHAR ":"
-
+#define USERFILE_NAME "user-file"
 
 char* timestamp(void);
 char*  hdata2string(hdata_t*);
 hdata_t* string2hdata(char*);
 char* writeAccess(int, char*);
 char* writeMessage(char*, char*, char*);
-
+void loadUserInHash(hash_t);
+void saveHashInFile(hash_t);
 
 //Return a char[24] as a timestamp
 char* timestamp() {
@@ -23,17 +24,25 @@ char* timestamp() {
 }
 
 char* hdata2string(hdata_t *val) {
-	char* toRet = calloc(256, sizeof(char));
-	sprintf(toRet, "%s:%s:%s", val->uname, val->fullname, val->email);
-	return toRet; 
+	if (val != 0) {
+		char* toRet = calloc(SL, sizeof(char));
+		sprintf(toRet, "%s:%s:%s", val->uname, val->fullname, val->email);
+		return toRet; 
+	} else {
+		return '\0';
+	}
 }
 
 hdata_t* string2hdata(char *str) {
-	hdata_t *toRet = malloc(sizeof(hdata_t));
-	toRet->uname = strtok(str, DELIM_CHAR);
-	toRet->fullname = strtok(NULL, DELIM_CHAR);
-	toRet->email = strtok(NULL, DELIM_CHAR);
-	return toRet;
+	if (str != '\0') {
+		hdata_t *toRet = malloc(sizeof(hdata_t));
+		toRet->uname = strtok(str, DELIM_CHAR);
+		toRet->fullname = strtok(NULL, DELIM_CHAR);
+		toRet->email = strtok(NULL, DELIM_CHAR);
+		return toRet;
+	} else {
+		return '\0';
+	}
 }
 
 
@@ -43,7 +52,8 @@ char* writeAccessToLog(int isItALogin, char* uname) {
 		exit(1);
 	}
 
-	char* toRet = calloc(256, sizeof(char));
+	char* toRet = calloc(SL, sizeof(
+	char));
 	char *whichLog = malloc(6);
 	strcpy(whichLog, "logout");
 	if (isItALogin)
@@ -53,23 +63,43 @@ char* writeAccessToLog(int isItALogin, char* uname) {
 }
 
 char* writeMessageToLog(char* sender, char* receiver, char* content){
-	char* toRet = calloc(256, sizeof(char));
+	char* toRet = calloc(SL, sizeof(char));
 	sprintf(toRet, "%s:%s:%s:%s", timestamp(), sender, receiver, content);
 	return toRet;
 }
 
-int main() {
-	hash_t H = CREAHASH();
-	char user[] = "tiulalan:Daniele Tolomelli:daniel.tolomelli@gmail.com";
-	hdata_t *hash_user = string2hdata(user);
-	INSERISCIHASH(hash_user->uname, hash_user, H);
-	hdata_t* foundUser = CERCAHASH("Tiulalan", H);
-	if (foundUser == NULL)
-		printf("Tiulalan doesn't exists in the database\n");
-	else
-		printf("%s\n", hdata2string(foundUser));
-	return 0;
+
+
+void saveHashInFile(hash_t H) {
+	FILE *userFile = fopen(USERFILE_NAME, "w");
+	char* buffer = calloc(SL, sizeof(char));
+	lista l = *H;
+	int i;
+	for (i=0; i<HL; i++) {
+		fprintf(userFile, "%s", hdata2string((hdata_t*)H[i]->elemento));
+		l = SUCCLISTA(l);
+	}
 }
 
+void loadUserInHash(hash_t H){
+	FILE *userFile = fopen(USERFILE_NAME, "r");
+	char* buffer = calloc(SL, sizeof(char));
+	size_t len = SL;
+	while (getline(&buffer, &len, userFile) >= 0) {
+		hdata_t *userData = string2hdata(strtok(buffer, "\n"));
+		INSERISCIHASH(userData->uname, userData, H);
+	}
+	hdata_t* userData2 = CERCAHASH("tiulalan", H);
+	buffer = hdata2string(userData2);
+	if (buffer != 0)
+		printf("%s\n", buffer);
+	else
+		printf("Porco dio\n");
+}
 
-
+int main() {
+	hash_t H = CREAHASH();
+	loadUserInHash(H);
+	//saveHashInFile(H);
+	return 0;
+}
