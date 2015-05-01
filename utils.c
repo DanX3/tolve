@@ -25,6 +25,16 @@ char* timestamp() {
 	return strtok(ctime(&t), "\n"); //Delete the newLine char from timestamp
 }
 
+hdata_t* string2hdata(char *str) {
+	hdata_t* toRet = malloc(sizeof(hdata_t));
+	str = strtok(str, "\n");
+	toRet->uname = strdup(strtok(str, DELIM_CHAR));
+	toRet->fullname = strdup(strtok(NULL, DELIM_CHAR));
+	toRet->email = strdup(strtok(NULL, DELIM_CHAR));
+	toRet->sockid = -1;
+	return toRet;
+}
+
 char* hdata2string(hdata_t *val) {
 	if (val != 0) {
 		char* toRet = calloc(SL, sizeof(char));
@@ -74,49 +84,17 @@ void saveHashInFile(hash_t H) {
 */
 
 
-void string2hdata(char *str, hdata_t* toRet) {
-	str = strtok(str, "\n");
-	toRet->uname = strtok(str, DELIM_CHAR);
-	toRet->fullname = strtok(NULL, DELIM_CHAR);
-	toRet->email = strtok(NULL, DELIM_CHAR);
-}
 
-//p ((hdata_t*)0x60cf30)->uname
 void loadUserInHash(hash_t H){
-#if 1
 	FILE *userFile = fopen(USERFILE_NAME, "r");
 	char* buffer = calloc(SL, sizeof(char));
-	hdata_t* userData = (hdata_t*) malloc(sizeof(hdata_t));
+	hdata_t* userData;
 	size_t len = SL;
 	while (getline(&buffer, &len, userFile) >= 0) {
-		buffer = strtok(buffer, "\n");
-		userData->uname = strtok(buffer, DELIM_CHAR);
-		userData->fullname = strtok(NULL, DELIM_CHAR);
-		userData->email = strtok(NULL, DELIM_CHAR);
+		userData = string2hdata(buffer);
 		INSERISCIHASH(userData->uname, (void*)userData, H);
 		userData = malloc(sizeof(hdata_t));
 	}
-	hdata_t* userData2 = CERCAHASH("tiulalan", H);
-	buffer = hdata2string(userData2);
-	fprintf(stderr, "%s\n", buffer);
-#endif
-#if 1
-	if (1) {
-	userData = malloc(sizeof(hdata_t));
-	userData->uname = "pato";
-	userData->fullname = "Pato di sti coglioni";
-	userData->email = "path@ventu.com";
-	INSERISCIHASH(userData->uname, userData, H);
-	}
-	userData = malloc(sizeof(hdata_t));
-	userData->uname = "mioZio";
-	userData->fullname = "Mio Zio ";
-	userData->email = "zioh@stick.com";
-	INSERISCIHASH(userData->uname, userData, H);
-	hdata_t* bs = CERCAHASH("pato", H);
-	fprintf(stderr, "%s\n", hdata2string(bs));
-#endif
-
 }
 
 int main() {
