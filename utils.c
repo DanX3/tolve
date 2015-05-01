@@ -9,6 +9,7 @@
 #define DELIM_CHAR ":"
 #define USERFILE_NAME "user-file"
 
+/*
 char* timestamp(void);
 char*  hdata2string(hdata_t*);
 hdata_t* string2hdata(char*);
@@ -16,6 +17,7 @@ char* writeAccess(int, char*);
 char* writeMessage(char*, char*, char*);
 void loadUserInHash(hash_t);
 void saveHashInFile(hash_t);
+*/
 
 //Return a char[24] as a timestamp
 char* timestamp() {
@@ -33,17 +35,6 @@ char* hdata2string(hdata_t *val) {
 	}
 }
 
-hdata_t* string2hdata(char *str) {
-	if (str != '\0') {
-		hdata_t *toRet = malloc(sizeof(hdata_t));
-		toRet->uname = strtok(str, DELIM_CHAR);
-		toRet->fullname = strtok(NULL, DELIM_CHAR);
-		toRet->email = strtok(NULL, DELIM_CHAR);
-		return toRet;
-	} else {
-		return '\0';
-	}
-}
 
 
 char* writeAccessToLog(int isItALogin, char* uname) {
@@ -69,7 +60,7 @@ char* writeMessageToLog(char* sender, char* receiver, char* content){
 }
 
 
-
+/*
 void saveHashInFile(hash_t H) {
 	FILE *userFile = fopen(USERFILE_NAME, "w");
 	char* buffer = calloc(SL, sizeof(char));
@@ -80,26 +71,57 @@ void saveHashInFile(hash_t H) {
 		l = SUCCLISTA(l);
 	}
 }
+*/
 
+
+void string2hdata(char *str, hdata_t* toRet) {
+	str = strtok(str, "\n");
+	toRet->uname = strtok(str, DELIM_CHAR);
+	toRet->fullname = strtok(NULL, DELIM_CHAR);
+	toRet->email = strtok(NULL, DELIM_CHAR);
+}
+
+//p ((hdata_t*)0x60cf30)->uname
 void loadUserInHash(hash_t H){
+#if 1
 	FILE *userFile = fopen(USERFILE_NAME, "r");
 	char* buffer = calloc(SL, sizeof(char));
+	hdata_t* userData = (hdata_t*) malloc(sizeof(hdata_t));
 	size_t len = SL;
 	while (getline(&buffer, &len, userFile) >= 0) {
-		hdata_t *userData = string2hdata(strtok(buffer, "\n"));
-		INSERISCIHASH(userData->uname, userData, H);
+		buffer = strtok(buffer, "\n");
+		userData->uname = strtok(buffer, DELIM_CHAR);
+		userData->fullname = strtok(NULL, DELIM_CHAR);
+		userData->email = strtok(NULL, DELIM_CHAR);
+		INSERISCIHASH(userData->uname, (void*)userData, H);
+		userData = malloc(sizeof(hdata_t));
 	}
 	hdata_t* userData2 = CERCAHASH("tiulalan", H);
 	buffer = hdata2string(userData2);
-	if (buffer != 0)
-		printf("%s\n", buffer);
-	else
-		printf("Porco dio\n");
+	fprintf(stderr, "%s\n", buffer);
+#endif
+#if 1
+	if (1) {
+	userData = malloc(sizeof(hdata_t));
+	userData->uname = "pato";
+	userData->fullname = "Pato di sti coglioni";
+	userData->email = "path@ventu.com";
+	INSERISCIHASH(userData->uname, userData, H);
+	}
+	userData = malloc(sizeof(hdata_t));
+	userData->uname = "mioZio";
+	userData->fullname = "Mio Zio ";
+	userData->email = "zioh@stick.com";
+	INSERISCIHASH(userData->uname, userData, H);
+	hdata_t* bs = CERCAHASH("pato", H);
+	fprintf(stderr, "%s\n", hdata2string(bs));
+#endif
+
 }
 
 int main() {
 	hash_t H = CREAHASH();
 	loadUserInHash(H);
-	//saveHashInFile(H);
 	return 0;
 }
+
