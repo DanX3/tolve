@@ -1,5 +1,5 @@
 killall server
-gcc -g server.c -o server
-gcc -g client.c -o client
+gcc -g chat-server.c -o server -lpthread
+gcc -g chat-client.c -o client -lpthread
 ./server
-./client conQualcosa
+./client CiaoServer!

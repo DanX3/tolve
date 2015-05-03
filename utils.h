@@ -10,7 +10,6 @@
 #define USERFILE_NAME "user-file"
 #define LOGFILE_NAME "log-file"
 
-/*
 char* timestamp(void);
 char*  hdata2string(hdata_t*);
 hdata_t* string2hdata(char*);
@@ -18,7 +17,7 @@ char* writeAccess(int, char*);
 char* writeMessage(char*, char*, char*);
 void loadUserfileInHash(hash_t);
 void saveHashInUserfile(hash_t);
-*/
+
 
 //Return a char[24] as a timestamp
 char* timestamp() {
@@ -48,12 +47,13 @@ char* hdata2string(hdata_t *val) {
 
 
 
-void writeAccessToLog(int isItALogin, char* uname, FILE* logfile) {
+void writeAccessToLog(int isItALogin, char* uname) {
 	if ((isItALogin != 0) && (isItALogin != 1)) {
 		fprintf(stderr, "Invalid argument for writeToLog");
 		exit(1);
 	}
 
+	FILE *logfile = fopen(LOGFILE_NAME, "a");
 	char* toRet = calloc(SL, sizeof(char));
 	char *whichLog = malloc(6);
 	strcpy(whichLog, "logout");
@@ -61,12 +61,15 @@ void writeAccessToLog(int isItALogin, char* uname, FILE* logfile) {
 		strcpy(whichLog, "login");
 	sprintf(toRet, "%s:%s:%s", timestamp(), whichLog, uname);
 	fprintf(logfile, "%s\n", toRet);
+	fclose(logfile);
 }
 
-void writeMessageToLog(char* sender, char* receiver, char* content, FILE *logfile){
+void writeMessageToLog(char* sender, char* receiver, char* content){
+	FILE *logfile = fopen(LOGFILE_NAME, "a");
 	char* toRet = calloc(SL, sizeof(char));
 	sprintf(toRet, "%s:%s:%s:%s", timestamp(), sender, receiver, content);
 	fprintf(logfile, "%s\n", toRet);
+	fclose(logfile);
 }
 
 
@@ -95,7 +98,7 @@ void loadUserfileInHash(hash_t H){
 	}
 }
 
-FILE* initLog() {
+void initLog() {
 	FILE* logfile = fopen(LOGFILE_NAME, "w");
 	char* welcomeMessage = malloc(256 * sizeof(char));
 	sprintf(welcomeMessage, "** Chat Server started @ %s **", timestamp());
@@ -107,10 +110,10 @@ FILE* initLog() {
 	for (i=0; i<strlen(welcomeMessage); i++)	fprintf(logfile, "*");
 	fprintf(logfile, "\n");
 
-	return logfile;
+	fclose(logfile);
 }
 
-
+/*
 
 int main() {
 	hash_t H = CREAHASH();
@@ -122,4 +125,4 @@ int main() {
 	fclose(logfile);
 	return 0;
 }
-
+*/
