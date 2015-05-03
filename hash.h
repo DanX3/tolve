@@ -11,7 +11,7 @@
 #include "lista.h"
 
 /* numero primo */
-#define HL 997 
+#define HL 997
 
 typedef lista * hash_t;
 
