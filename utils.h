@@ -115,7 +115,7 @@ void initLog() {
 }
 
 int cmdMatcher(char* cmd) {
-	//leggo quale comando si vuole eseguire, modificando un altra istanza
+	//leggo quale comando si vuole 2eseguire, modificando un altra istanza
 	//di cmd, per non intaccare la stringa originale
 	cmd  = strtok(strdup(cmd), " ");
 	if (strcmp(cmd, "#ls") == 0)	return MSG_LIST;
@@ -128,4 +128,22 @@ int cmdMatcher(char* cmd) {
 	}
 	return 0;
 
+}
+
+char* marshal(msg_t *msg){
+	char* toRet = calloc(SL, sizeof(char));
+	sprintf(toRet, "%c:%s:%s:%u:%s", 
+		msg->type, msg->sender, msg->receiver, msg->msglen, msg->msg);
+	return toRet;
+
+}
+
+msg_t* unMarshal(char* str){
+	msg_t* toRet 	= calloc(1, sizeof(msg_t));
+	str = strtok(str, DELIM_CHAR);
+	toRet->type 	= str[0];
+	toRet->sender 	= strdup(strtok(0, DELIM_CHAR));
+	toRet->receiver = strdup(strtok(0, DELIM_CHAR));
+	toRet->msglen 	= atoi  (strtok(0, DELIM_CHAR));
+	toRet->msg 	= strdup(strtok(0, DELIM_CHAR));
 }

@@ -16,11 +16,19 @@
 #define MSG_LOGOUT 	'X' //logout
 
 typedef struct struct_hdata_t {
-char * uname; // username
-char * fullname; // full name
-char * email; // email address
-int sockid; // socket identifier; -1 = not connected
+	char * uname; // username
+	char * fullname; // full name
+	char * email; // email address
+	int sockid; // socket identifier; -1 = not connected
 } hdata_t;
+
+typedef struct __msg_t__ {
+	char type;
+	char *sender;
+	char *receiver;
+	unsigned int msglen;
+	char *msg;
+} msg_t;
 
 #endif
 
