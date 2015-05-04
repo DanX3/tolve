@@ -59,18 +59,18 @@ void*  Worker(void* data) {
 	while (go) {
 		message = calloc(SL, sizeof(char));
 		if ( read(socket, message, SL) == 0 ) {
-			fprintf(stderr, "Empty buffer\n"); 
-			exit(-1);
+			exit(1);
 		}
 
+
 		fprintf(stderr, "Server received:%s\n", message);
+		fprintf(stderr, "%c\n", cmdMatcher(message));
 
 		pthread_mutex_lock(&logfileMutex);
 		writeMessageToLog("tiulalan", "ventupath", message);
 		pthread_mutex_unlock(&logfileMutex);
 		free(message);
 	}
-	//while (go)
 	//exec reg o ls | prod-cons con dispatcher (buffer circolare)
 }
 

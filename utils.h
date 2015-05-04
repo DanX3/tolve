@@ -113,3 +113,19 @@ void initLog() {
 
 	fclose(logfile);
 }
+
+int cmdMatcher(char* cmd) {
+	//leggo quale comando si vuole eseguire, modificando un altra istanza
+	//di cmd, per non intaccare la stringa originale
+	cmd  = strtok(strdup(cmd), " ");
+	if (strcmp(cmd, "#ls") == 0)	return MSG_LIST;
+	if (strcmp(cmd, "#logout")==0)	return MSG_LOGOUT;
+
+	if (strcmp(cmd, "#dest") == 0)	{
+		cmd = strtok(0, " ");
+		if (cmd[0] == ':')	return MSG_BRDCAST;
+		else			return MSG_SINGLE;
+	}
+	return 0;
+
+}
