@@ -78,6 +78,7 @@ void saveHashInUserfile(hash_t H) {
 	char* buffer = calloc(SL, sizeof(char));
 	int i;
 	for (i=0; i<HL; i++) {
+		//Metodo per arrivare al contenuto della cella hash
 		hdata_t* user= (hdata_t*)((*(H+i))->successivo)->elemento;
 		if ( user != 0 ) 
 			fprintf(userFile, "%s\n", hdata2string(user));
@@ -112,17 +113,3 @@ void initLog() {
 
 	fclose(logfile);
 }
-
-/*
-
-int main() {
-	hash_t H = CREAHASH();
-	FILE * logfile = initLog();
-	char* logger = "Tiulalan";
-	writeAccessToLog(1, logger, logfile);
-	sleep(2);
-	writeAccessToLog(0, logger, logfile);
-	fclose(logfile);
-	return 0;
-}
-*/
