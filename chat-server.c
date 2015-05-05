@@ -35,13 +35,13 @@ void Server(){
 	}	
 	listen(sock, 10);
 	while(go){
-		//Gestione lancio thread Worker
 		newSocket = accept(sock, NULL, 0);
 		pthread_t t;
 		pthread_create(&t, 0, Worker, (void*)&newSocket);
 		pthread_detach(t);
 		//termina su SIGTERM o SIGINT (go = 0)
 	}
+	saveHashInUserfile(H);
 	close(sock);
 	exit(0);
 }
@@ -56,19 +56,29 @@ void*  Dispatcher(void* data) {
 void*  Worker(void* data) {
 	int socket = *(int*)data;
 	char *message;
+	msg_t *msg;
 	while (go) {
 		message = calloc(SL, sizeof(char));
-		if ( read(socket, message, SL) == 0 ) {
+		if ( read(socket, message, SL) == 0 )
 			exit(1);
+
+		msg = calloc(1, sizeof(msg_t));
+		msg = unMarshal(message);
+		switch(msg->type) {
+		case MSG_LOGIN:
+			if (CERCAHASH(msg->content, H) == 0) {
+				
+				//MSG_ERROR
+			} else {
+				//MSG_OK
+			}
+			break;
+		case MSG_SINGLE:
+			pthread_mutex_lock(&logfileMutex);
+			writeMessageToLog("tiulalan", msg->receiver, msg->content);
+			pthread_mutex_unlock(&logfileMutex);
+			break;
 		}
-
-
-		fprintf(stderr, "Server received:%s\n", message);
-		fprintf(stderr, "%c\n", cmdMatcher(message));
-
-		pthread_mutex_lock(&logfileMutex);
-		writeMessageToLog("tiulalan", "ventupath", message);
-		pthread_mutex_unlock(&logfileMutex);
 		free(message);
 	}
 	//exec reg o ls | prod-cons con dispatcher (buffer circolare)

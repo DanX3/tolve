@@ -133,7 +133,7 @@ int cmdMatcher(char* cmd) {
 char* marshal(msg_t *msg){
 	char* toRet = calloc(SL, sizeof(char));
 	sprintf(toRet, "%c:%s:%s:%u:%s", 
-		msg->type, msg->sender, msg->receiver, msg->msglen, msg->msg);
+		msg->type, msg->sender, msg->receiver, msg->msglen, msg->content);
 	return toRet;
 
 }
@@ -145,5 +145,5 @@ msg_t* unMarshal(char* str){
 	toRet->sender 	= strdup(strtok(0, DELIM_CHAR));
 	toRet->receiver = strdup(strtok(0, DELIM_CHAR));
 	toRet->msglen 	= atoi  (strtok(0, DELIM_CHAR));
-	toRet->msg 	= strdup(strtok(0, DELIM_CHAR));
+	toRet->content 	= strdup(strtok(0, DELIM_CHAR));
 }

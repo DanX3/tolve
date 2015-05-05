@@ -27,7 +27,7 @@ typedef struct __msg_t__ {
 	char *sender;
 	char *receiver;
 	unsigned int msglen;
-	char *msg;
+	char *content;
 } msg_t;
 
 #endif
