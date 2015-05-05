@@ -70,9 +70,15 @@ void*  Worker(void* data) {
 		case MSG_LOGIN:
 			username = msg->content;
 			msg = calloc(1, sizeof(msg_t));
-			if (CERCAHASH(username, H) == 0) 	msg->type = MSG_ERROR;
-			else 					msg->type = MSG_OK;	
-			write(socket, marshal(msg), SL);
+			if (CERCAHASH(username, H) == 0) {
+				msg->type = MSG_ERROR;
+				write(socket, marshal(msg), SL);
+				pthread_exit(0);
+			} else {
+				msg->type = MSG_OK;
+				write(socket, marshal(msg), SL);
+				writeAccessToLog(1, username);
+			}
 			break;
 		case MSG_SINGLE:
 			if (CERCAHASH(msg->receiver, H) == 0) {
@@ -84,6 +90,18 @@ void*  Worker(void* data) {
 			writeMessageToLog(username,  msg->receiver, msg->content);
 			pthread_mutex_unlock(&logfileMutex);
 			break;
+		case MSG_BRDCAST:
+			//message_broadcast
+			break;
+		case MSG_LIST:
+			//hashList();
+			break;
+		case MSG_LOGOUT:
+			writeAccessToLog(0, username);
+			free(username);
+			free(input);
+			free(msg);
+			pthread_exit(0);
 		default:
 			fprintf(stderr, "Error: invalid commmand requsted\n");
 			break;

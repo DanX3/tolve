@@ -147,3 +147,11 @@ msg_t* unMarshal(char* str){
 	toRet->msglen 	= atoi  (strtok(0, DELIM_CHAR));
 	toRet->content 	= strdup(strtok(0, DELIM_CHAR));
 }
+
+
+/*I have to implement log-handler functions */
+//addLoggedUser --> user strcat to add a ":username" to buffer
+//removeLoggedUser --> reshape buffer removing the user who made logout
+//checkLoggedUser --> use strstr to check the presence of a substring in another one
+//listLoggedUser --> print nicely the buffer
+

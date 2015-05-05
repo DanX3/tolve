@@ -32,6 +32,7 @@ int main(int argc, char** argv) {
 	char* input = calloc(SL, sizeof(char));
 	size_t len = SL;
 	msg_t *msg;
+	int cmdId;
 
 	//Gestione del Login
 	msg = calloc(1, sizeof(msg_t));
@@ -57,7 +58,7 @@ int main(int argc, char** argv) {
 		getline(&input, &len, stdin);
 		input = strtok(input, "\n");
 		
-		int cmdId = cmdMatcher(input);
+		cmdId = cmdMatcher(input);
 		msg = calloc(1, sizeof(msg_t));
 		//Devo togliere "#dest " dalla mia stringa di comando
 		strtok(input, " ");
@@ -65,22 +66,30 @@ int main(int argc, char** argv) {
 		case 0:
 			fprintf(stderr, "Error:not a valid command\n");
 			continue;
+		case MSG_LOGIN:
+			msg->type = MSG_LOGIN;
+			msg->msglen = strlen(username);
+			msg->content = username;
+			break;
 		case MSG_SINGLE:
 			msg->type = MSG_SINGLE;
 			msg->receiver = strdup(strtok(0, DELIM_CHAR));
 			msg->content = strdup(strtok(0, DELIM_CHAR));
 			msg->msglen = strlen(msg->content);
 			break;
-		case MSG_LOGIN:
-			msg->type = MSG_LOGIN;
-			msg->msglen = strlen(username);
-			msg->content = username;
+		case MSG_BRDCAST:
+			msg->content = strdup(strtok(0, DELIM_CHAR));
+			msg->msglen = strlen(msg->content);
 			break;
+		case MSG_LIST:
+			msg->type = MSG_LIST;
+		case MSG_LOGOUT:
+			msg->type = MSG_LOGOUT;
 		}
 		write(sock, marshal(msg), SL);
-			
-
-	} while(strcmp(input, "exit") != 0);
+		
+	} while( cmdId != MSG_LOGOUT );
+	printf("A presto %s!\n", username);
 	exit(0);
 }
 
