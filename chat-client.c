@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv) {
 	char* username = calloc(SL, sizeof(char));
-	if (argc > 2) {
+	if (argc > 1) {
 		if( strcmp(argv[1], "-h") == 0){
 			printf("Scriviamo l'aiuto\n");
 			exit(0);
@@ -13,7 +13,12 @@ int main(int argc, char** argv) {
 		} else 
 			username = argv[1];
 
+	} else {
+		printf("Error 2: ./chat-client -h for help\n");
+		exit(2);
 	}
+		
+
 	struct sockaddr_in server; 
 	int sock = socket(AF_INET, SOCK_STREAM, 0);
 	
@@ -24,18 +29,29 @@ int main(int argc, char** argv) {
 	
 	connect(sock, (struct sockaddr*) &server, sizeof(struct sockaddr_in));
 
-	char* input;
+	char* input = calloc(SL, sizeof(char));
 	size_t len = SL;
 	msg_t *msg;
 
 	//Gestione del Login
 	msg = calloc(1, sizeof(msg_t));
+	msg->type = MSG_LOGIN;
 	msg->msglen = strlen(username);
-	msg->sender = username;
+	msg->content = username;
 	write(sock, marshal(msg), SL);
-	//Controllo login?
-	
 
+	msg = calloc(1, sizeof(msg_t));
+	read(sock, input, SL);
+	msg = unMarshal(input);
+	if (msg->type == MSG_ERROR) {
+		fprintf(stderr, "Error 1: user not found\n");
+		exit(1);
+	} else
+		printf("Benvenuto %s!\n", username);
+		
+
+	
+	//Ciclo per l'interazione con l'utente
 	do {
 		input = calloc(SL, sizeof(char));
 		getline(&input, &len, stdin);

@@ -7,12 +7,13 @@ void* Dispatcher(void*);
 void* Worker(void*);
 
 pthread_mutex_t logfileMutex;
+hash_t H;
 
 void Server(){
 	printf("server pid: %d\n", getpid());
 
 	//Inizializzazione tabella utenti
-	hash_t H = CREAHASH();
+	H = CREAHASH();
 	loadUserfileInHash(H);
 
 	//Inizializzazione logFile
@@ -55,31 +56,39 @@ void*  Dispatcher(void* data) {
 
 void*  Worker(void* data) {
 	int socket = *(int*)data;
-	char *message;
+	char *input, *username;
 	msg_t *msg;
+	username = calloc(SL, sizeof(char));
 	while (go) {
-		message = calloc(SL, sizeof(char));
-		if ( read(socket, message, SL) == 0 )
+		input = calloc(SL, sizeof(char));
+		if ( read(socket, input, SL) == 0 )
 			exit(1);
 
 		msg = calloc(1, sizeof(msg_t));
-		msg = unMarshal(message);
+		msg = unMarshal(input);
 		switch(msg->type) {
 		case MSG_LOGIN:
-			if (CERCAHASH(msg->content, H) == 0) {
-				
-				//MSG_ERROR
-			} else {
-				//MSG_OK
-			}
+			username = msg->content;
+			msg = calloc(1, sizeof(msg_t));
+			if (CERCAHASH(username, H) == 0) 	msg->type = MSG_ERROR;
+			else 					msg->type = MSG_OK;	
+			write(socket, marshal(msg), SL);
 			break;
 		case MSG_SINGLE:
+			if (CERCAHASH(msg->receiver, H) == 0) {
+				fprintf(stderr, "Error: invalid receiver\n");
+				free(input);
+				continue;
+			}
 			pthread_mutex_lock(&logfileMutex);
-			writeMessageToLog("tiulalan", msg->receiver, msg->content);
+			writeMessageToLog(username,  msg->receiver, msg->content);
 			pthread_mutex_unlock(&logfileMutex);
 			break;
+		default:
+			fprintf(stderr, "Error: invalid commmand requsted\n");
+			break;
 		}
-		free(message);
+		free(input);
 	}
 	//exec reg o ls | prod-cons con dispatcher (buffer circolare)
 }
