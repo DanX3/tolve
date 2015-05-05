@@ -13,7 +13,7 @@ void addLoggedUser(char* username, char* buffer) {
 
 void listLoggedUser(char* buffer) {
 	char* username = calloc(SL, sizeof(char));
-	username = strtok(strdup(buffer), ":");
+	username = strtok(strdup(buffer), ":"); //strdup per non alterare buffer
 	printf("%s\n", username);
 	for (;;) {
 		username = strtok(0, ":");
@@ -27,6 +27,27 @@ int checkLoggedUser(char *username, char *buffer) {
 	else					return 1;
 }
 
+
+void removeLoggedUser(char *userToDelete, char *buffer) {
+	char* currentUser = calloc(SL, sizeof(char));
+	char* toReturn = calloc(SL, sizeof(char));
+	currentUser = strtok(buffer, ":");
+	for (;;) {
+		if  ( strcmp(userToDelete, currentUser) == 0 ) {
+			currentUser = strtok(0, ":");
+			continue;
+		}
+		sprintf(toReturn, "%s:%s", toReturn, currentUser);
+		currentUser = strtok(0, ":");
+		if (currentUser == 0)
+			break;
+	}
+	if (toReturn[0] == ':')
+		toReturn = toReturn + 1;
+	strcpy(buffer, toReturn);
+	//free(toReturn);
+}
+
 int main() {
 	char* buffer = calloc(32*SL, sizeof(char));
 	
@@ -37,7 +58,10 @@ int main() {
 	
 	printf("%d\n", checkLoggedUser("tiulalan", buffer));
 	printf("%d\n", checkLoggedUser("toffax", buffer));
-	
+	removeLoggedUser("tiulalan", buffer);
+	removeLoggedUser("ventupath", buffer);
+	removeLoggedUser("sully46", buffer);
+	//addLoggedUser("sully46", buffer);
 	listLoggedUser(buffer);
 	return 0;
 }
