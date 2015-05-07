@@ -83,10 +83,19 @@ int main(int argc, char** argv) {
 			break;
 		case MSG_LIST:
 			msg->type = MSG_LIST;
+			break;
 		case MSG_LOGOUT:
 			msg->type = MSG_LOGOUT;
+			break;
 		}
 		write(sock, marshal(msg), SL);
+
+		if (cmdId == MSG_LIST) {
+			char *buffer = calloc(MAX_LOGGEDUSERS*USERNAME_LENGTH, sizeof(char));
+			read(sock, buffer, MAX_LOGGEDUSERS*USERNAME_LENGTH);
+			printf("%s\n", buffer);
+			
+		}
 		
 	} while( cmdId != MSG_LOGOUT );
 	printf("A presto %s!\n", username);

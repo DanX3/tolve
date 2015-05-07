@@ -8,6 +8,7 @@ void* Worker(void*);
 
 pthread_mutex_t logfileMutex;
 hash_t H;
+StringList loggedList;
 
 void Server(){
 	printf("server pid: %d\n", getpid());
@@ -21,6 +22,7 @@ void Server(){
 
 	//Settando l'ambiente
 	pthread_mutex_init(&logfileMutex, NULL);
+	loggedList = initLoggedUser();
 
 	//Organizzazione socket server-side
 	int sock, newSocket;
@@ -77,6 +79,7 @@ void*  Worker(void* data) {
 			} else {
 				msg->type = MSG_OK;
 				write(socket, marshal(msg), SL);
+				addLoggedUser(username, loggedList);
 				writeAccessToLog(1, username);
 			}
 			break;
@@ -94,9 +97,10 @@ void*  Worker(void* data) {
 			//message_broadcast
 			break;
 		case MSG_LIST:
-			//hashList();
+			write(socket, listLoggedUser(loggedList), MAX_LOGGEDUSERS*USERNAME_LENGTH);
 			break;
 		case MSG_LOGOUT:
+			removeLoggedUser(username, loggedList);
 			writeAccessToLog(0, username);
 			free(username);
 			free(input);
