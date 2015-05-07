@@ -80,18 +80,23 @@ void*  Worker(void* data) {
 				msg->type = MSG_OK;
 				write(socket, marshal(msg), SL);
 				addLoggedUser(username, loggedList);
+				getDataFrom(username, H)->sockid = socket;
 				writeAccessToLog(1, username);
 			}
 			break;
 		case MSG_SINGLE:
-			if (CERCAHASH(msg->receiver, H) == 0) {
-				fprintf(stderr, "Error: invalid receiver\n");
-				free(input);
-				continue;
+			if ( CERCAHASH(msg->receiver, H) == 0 ) 
+				fprintf(stderr, "Errore: destinatario non esistente\n");
+			else 
+			if ( checkLoggedUser(msg->receiver, loggedList) == 0)
+				fprintf(stderr, "Errore: destinatario non connesso\n");
+			else {
+				int recvSock = getDataFrom(msg->receiver, H)->sockid;
+				write(recvSock, msg->content, SL);
+				pthread_mutex_lock(&logfileMutex);
+				writeMessageToLog(username,  msg->receiver, msg->content);
+				pthread_mutex_unlock(&logfileMutex);
 			}
-			pthread_mutex_lock(&logfileMutex);
-			writeMessageToLog(username,  msg->receiver, msg->content);
-			pthread_mutex_unlock(&logfileMutex);
 			break;
 		case MSG_BRDCAST:
 			//message_broadcast
@@ -101,6 +106,7 @@ void*  Worker(void* data) {
 			break;
 		case MSG_LOGOUT:
 			removeLoggedUser(username, loggedList);
+			getDataFrom(username, H)->sockid = -1;
 			writeAccessToLog(0, username);
 			free(username);
 			free(input);

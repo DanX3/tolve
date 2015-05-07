@@ -14,22 +14,23 @@
 
 typedef char** StringList;
 
-char* timestamp(void);
-char*  hdata2string(hdata_t*);
-hdata_t* string2hdata(char*);
-char* writeAccess(int, char*);
-char* writeMessage(char*, char*, char*);
-void loadUserfileInHash(hash_t);
-void saveHashInUserfile(hash_t);
-void initLog();
-int cmdMatcher(char*);
-char* marshal(msg_t*);
-msg_t* unMarshal(char*);
-StringList initLoggedUser();
-void addLoggedUser(char*, StringList);
-char* listLoggedUser(StringList);
-int checkLoggedUser(char*, StringList);
-void removeLoggedUser(char*, StringList);
+char* timestamp(void);			//Restituisce il timestamp attuale
+char*  hdata2string(hdata_t*);		//converte i dati utente in una stringa con separatori
+hdata_t* string2hdata(char*);		//effettua il parse di una stringa con dati hdata_t
+char* writeAccess(int, char*);		//scrive l'accesso nel log-file
+char* writeMessage(char*, char*, char*);//scrive un messaggio su log-file
+void loadUserfileInHash(hash_t);	//carica la hash table da un file di testo
+void saveHashInUserfile(hash_t);	//salva l'attuale hash table in un file di testo
+hdata_t* getDataFrom(char*, hash_t);	//ritorna il puntatore ai dati nella hash table
+void initLog();				//inizializza il log-file
+int cmdMatcher(char*);			//restituisce il comando richiesto
+char* marshal(msg_t*);			//effettua il marshalling di un msg_t
+msg_t* unMarshal(char*);		//effettua il parsing di una stringa con dati msg_t
+StringList initLoggedUser();		//inizializza la lista di utenti connessi
+void addLoggedUser(char*, StringList);	//aggiunge un utente alla lista
+char* listLoggedUser(StringList);	//elenca gli utenti connessi restituendoli in una stringa
+int checkLoggedUser(char*, StringList);	//controlla se un utente e' connesso
+void removeLoggedUser(char*, StringList);//rimuove un utente dalla lista degli utenti connessi
 
 
 //Return a char[24] as a timestamp
@@ -85,6 +86,9 @@ void writeMessageToLog(char* sender, char* receiver, char* content){
 	fclose(logfile);
 }
 
+hdata_t* getDataFrom(char* username, hash_t H) {
+	return (hdata_t*)((*(H+hashfunc(username)))->successivo)->elemento;
+}
 
 void saveHashInUserfile(hash_t H) {
 	FILE *userFile = fopen(USERFILE_NAME, "w");
