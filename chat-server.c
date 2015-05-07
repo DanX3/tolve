@@ -97,7 +97,7 @@ void*  Worker(void* data) {
 			//message_broadcast
 			break;
 		case MSG_LIST:
-			write(socket, listLoggedUser(loggedList), MAX_LOGGEDUSERS*USERNAME_LENGTH);
+			write(socket, listLoggedUser(loggedList), SL);
 			break;
 		case MSG_LOGOUT:
 			removeLoggedUser(username, loggedList);

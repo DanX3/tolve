@@ -21,6 +21,15 @@ char* writeAccess(int, char*);
 char* writeMessage(char*, char*, char*);
 void loadUserfileInHash(hash_t);
 void saveHashInUserfile(hash_t);
+void initLog();
+int cmdMatcher(char*);
+char* marshal(msg_t*);
+msg_t* unMarshal(char*);
+StringList initLoggedUser();
+void addLoggedUser(char*, StringList);
+char* listLoggedUser(StringList);
+int checkLoggedUser(char*, StringList);
+void removeLoggedUser(char*, StringList);
 
 
 //Return a char[24] as a timestamp
