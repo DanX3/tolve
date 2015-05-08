@@ -91,13 +91,14 @@ void*  Worker(void* data) {
 				SCError("Errore: destinatario non connesso", msg);
 				write(socket, marshal(msg), SL);
 			} else {
+				pthread_mutex_lock(&logfileMutex);
+				writeMessageToLog(username,  msg->receiver, msg->content);
+				pthread_mutex_unlock(&logfileMutex);
+
 				int recvSock = getDataFrom(msg->receiver, H)->sockid;
 				SCSingle(getDataFrom(username, H)->fullname, msg->content, msg);
 				write(recvSock, marshal(msg), SL);
 
-				pthread_mutex_lock(&logfileMutex);
-				writeMessageToLog(username,  msg->receiver, msg->content);
-				pthread_mutex_unlock(&logfileMutex);
 			}
 			break;
 		case MSG_BRDCAST:

@@ -14,6 +14,9 @@
 #define MSG_BRDCAST	'B' //message broadcast
 #define MSG_LIST	'I' //list 
 #define MSG_LOGOUT 	'X' //logout
+#define CMD_LOGOUT 	"#x"
+#define CMD_LIST 	"#ls"
+#define CMD_SEND 	"#dest"
 
 typedef struct struct_hdata_t {
 	char * uname; // username
