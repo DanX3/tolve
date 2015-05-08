@@ -7,13 +7,11 @@ char* timestamp() {
 int cmdMatcher(char* cmd) {
 	//leggo quale comando si vuole 2eseguire, modificando un altra istanza
 	//di cmd, per non intaccare la stringa originale
-	cmd  = strtok(strdup(cmd), " ");
-	if (strcmp(cmd, "#ls") == 0)	return MSG_LIST;
-	if (strcmp(cmd, "#x")==0)	return MSG_LOGOUT;
+	if (strncmp(cmd, "#ls", 3) == 0 )	return MSG_LIST;
+	if (strncmp(cmd, "#x", 2) == 0 )	return MSG_LOGOUT;
 
-	if (strcmp(cmd, "#dest") == 0)	{
-		cmd = strtok(0, " ");
-		if (cmd[0] == ':')	return MSG_BRDCAST;
+	if (strncmp(cmd, "#dest", 5) == 0)	{
+		if (cmd[6] == ':')	return MSG_BRDCAST;
 		else			return MSG_SINGLE;
 	}
 	return 0;

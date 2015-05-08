@@ -58,27 +58,24 @@ void*  Dispatcher(void* data) {
 
 void*  Worker(void* data) {
 	int socket = *(int*)data;
-	char *input, *username;
-	msg_t *msg;
+	char *username;
+	char *input = calloc(SL, sizeof(char));
+	msg_t* msg = calloc(1, sizeof(msg_t));
 	username = calloc(SL, sizeof(char));
 	while (go) {
-		input = calloc(SL, sizeof(char));
 		if ( read(socket, input, SL) == 0 )
 			exit(1);
-
-		fprintf(stderr, "Server has received %s\n",input);
-		msg = calloc(1, sizeof(msg_t));
 		msg = unMarshal(input);
 		switch(msg->type) {
 		case MSG_LOGIN:
 			username = msg->content;
-			msg = calloc(1, sizeof(msg_t));
+			bzero(msg, sizeof(msg_t));
 			if (CERCAHASH(username, H) == 0) {
-				msg->type = MSG_ERROR;
+				SCError("", msg);
 				write(socket, marshal(msg), SL);
 				pthread_exit(0);
 			} else {
-				msg->type = MSG_OK;
+				SCOK(msg);
 				write(socket, marshal(msg), SL);
 				addLoggedUser(username, loggedList);
 				getDataFrom(username, H)->sockid = socket;
@@ -86,16 +83,16 @@ void*  Worker(void* data) {
 			}
 			break;
 		case MSG_SINGLE:
-			if(( CERCAHASH(msg->receiver, H) == 0 ) || 
-			   ( checkLoggedUser(msg->receiver, loggedList) == 0) ) {
-				bzero(msg, sizeof(msg));
-				msg->type = MSG_ERROR;
+			if ( CERCAHASH(msg->receiver, H) == 0 ) {
+				SCError("Errore: destinatario non registrato", msg);
+				write(socket, marshal(msg), SL);
+			} else
+			if ( checkLoggedUser(msg->receiver, loggedList) == 0) {
+				SCError("Errore: destinatario non connesso", msg);
 				write(socket, marshal(msg), SL);
 			} else {
-				fprintf(stderr, "%s\n", input);
 				int recvSock = getDataFrom(msg->receiver, H)->sockid;
-				msg->sender = getDataFrom(username, H)->fullname;
-				fprintf(stderr, "Server is about to write %s\n", msg->content);
+				SCSingle(getDataFrom(username, H)->fullname, msg->content, msg);
 				write(recvSock, marshal(msg), SL);
 
 				pthread_mutex_lock(&logfileMutex);
@@ -107,22 +104,21 @@ void*  Worker(void* data) {
 			//message_broadcast
 			break;
 		case MSG_LIST:
-			msg->content = listLoggedUser(loggedList);
+			SCList(listLoggedUser(loggedList), msg);
 			write(socket, marshal(msg), SL);
 			break;
 		case MSG_LOGOUT:
 			removeLoggedUser(username, loggedList);
 			getDataFrom(username, H)->sockid = -1;
 			writeAccessToLog(0, username);
-			free(username);
 			free(input);
 			free(msg);
 			pthread_exit(0);
 		default:
-			fprintf(stderr, "Error: invalid commmand requsted\n");
+			fprintf(stderr, "Errore: comando richiesto non valido\n");
 			break;
 		}
-		free(input);
+		bzero(input, sizeof(input));
 	}
 	//exec reg o ls | prod-cons con dispatcher (buffer circolare)
 }
