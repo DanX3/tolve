@@ -66,6 +66,7 @@ void*  Worker(void* data) {
 		if ( read(socket, input, SL) == 0 )
 			exit(1);
 
+		fprintf(stderr, "Server has received %s\n",input);
 		msg = calloc(1, sizeof(msg_t));
 		msg = unMarshal(input);
 		switch(msg->type) {
@@ -85,14 +86,18 @@ void*  Worker(void* data) {
 			}
 			break;
 		case MSG_SINGLE:
-			if ( CERCAHASH(msg->receiver, H) == 0 ) 
-				fprintf(stderr, "Errore: destinatario non esistente\n");
-			else 
-			if ( checkLoggedUser(msg->receiver, loggedList) == 0)
-				fprintf(stderr, "Errore: destinatario non connesso\n");
-			else {
+			if(( CERCAHASH(msg->receiver, H) == 0 ) || 
+			   ( checkLoggedUser(msg->receiver, loggedList) == 0) ) {
+				bzero(msg, sizeof(msg));
+				msg->type = MSG_ERROR;
+				write(socket, marshal(msg), SL);
+			} else {
+				fprintf(stderr, "%s\n", input);
 				int recvSock = getDataFrom(msg->receiver, H)->sockid;
-				write(recvSock, msg->content, SL);
+				msg->sender = getDataFrom(username, H)->fullname;
+				fprintf(stderr, "Server is about to write %s\n", msg->content);
+				write(recvSock, marshal(msg), SL);
+
 				pthread_mutex_lock(&logfileMutex);
 				writeMessageToLog(username,  msg->receiver, msg->content);
 				pthread_mutex_unlock(&logfileMutex);
@@ -102,7 +107,8 @@ void*  Worker(void* data) {
 			//message_broadcast
 			break;
 		case MSG_LIST:
-			write(socket, listLoggedUser(loggedList), SL);
+			msg->content = listLoggedUser(loggedList);
+			write(socket, marshal(msg), SL);
 			break;
 		case MSG_LOGOUT:
 			removeLoggedUser(username, loggedList);

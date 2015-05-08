@@ -136,7 +136,7 @@ int cmdMatcher(char* cmd) {
 	//di cmd, per non intaccare la stringa originale
 	cmd  = strtok(strdup(cmd), " ");
 	if (strcmp(cmd, "#ls") == 0)	return MSG_LIST;
-	if (strcmp(cmd, "#logout")==0)	return MSG_LOGOUT;
+	if (strcmp(cmd, "#x")==0)	return MSG_LOGOUT;
 
 	if (strcmp(cmd, "#dest") == 0)	{
 		cmd = strtok(0, " ");
@@ -157,12 +157,16 @@ char* marshal(msg_t *msg){
 
 msg_t* unMarshal(char* str){
 	msg_t* toRet 	= calloc(1, sizeof(msg_t));
+	char* backup = strdup(str);
 	str = strtok(str, DELIM_CHAR);
 	toRet->type 	= str[0];
 	toRet->sender 	= strdup(strtok(0, DELIM_CHAR));
 	toRet->receiver = strdup(strtok(0, DELIM_CHAR));
 	toRet->msglen 	= atoi  (strtok(0, DELIM_CHAR));
-	toRet->content 	= strdup(strtok(0, DELIM_CHAR));
+	int i = -4, j = 0;;
+	while(i != 0) 
+		if (backup[j++] == ':') i++;
+	toRet->content = backup+j;
 }
 
 StringList initLoggedUser() {

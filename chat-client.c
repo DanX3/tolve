@@ -10,6 +10,7 @@ void* clientSender(void* data) {
 	int cmdId, go = 1;
 	while (go) {
 		getline(&input, &len, stdin);
+		char* backup = strdup(input);
 		input = strtok(input, "\n");
 		
 		cmdId = cmdMatcher(input);
@@ -28,7 +29,10 @@ void* clientSender(void* data) {
 		case MSG_SINGLE:
 			msg->type = MSG_SINGLE;
 			msg->receiver = strdup(strtok(0, DELIM_CHAR));
-			msg->content = strdup(strtok(0, DELIM_CHAR));
+			int i = -1, j = 0;
+			while(i != 0) 
+				if (backup[j++] == ':') i++;
+			msg->content = backup+j;
 			msg->msglen = strlen(msg->content);
 			break;
 		case MSG_BRDCAST:
@@ -42,6 +46,7 @@ void* clientSender(void* data) {
 			msg->type = MSG_LOGOUT;
 			go = 0;
 			printf("A presto %s!\n", username);
+			break;
 		}
 		write(sock, marshal(msg), SL);
 	}
@@ -49,10 +54,26 @@ void* clientSender(void* data) {
 }
 
 void* clientListener(void* data) {
+	msg_t* msg = calloc(1, sizeof(msg_t));
 	char* buffer = calloc(SL, sizeof(char));
 	for (;;) {
 		read(sock, buffer, SL);
-		printf("%s\n", buffer);
+
+		msg = unMarshal(buffer);
+		switch(msg->type) {
+		case MSG_SINGLE:
+			printf("%s: %s\n", msg->sender, msg->content);
+			break;
+		case MSG_LIST:
+			printf("%s\n", msg->content);
+			break;
+		case MSG_ERROR:
+			fprintf(stderr, "Errore: qualcosa e' andato storto\n");
+			break;
+		default:
+			fprintf(stderr, "Errore: client ha ricevuto un comando sconosciuto\n");
+			break;
+		}
 	}
 }
 
