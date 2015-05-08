@@ -7,49 +7,21 @@ void* clientSender(void* data) {
 	char* input = calloc(SL, sizeof(char));
 	size_t len = SL;
 	msg_t *msg = calloc(1, sizeof(msg_t));
-	int cmdId, go = 1;
+	int go = 1;
 	while (go) {
 		getline(&input, &len, stdin);
-		char* backup = strdup(input);
-		input = strtok(input, "\n");
-		
-		cmdId = cmdMatcher(input);
-		bzero(msg, sizeof(msg));
-		//Devo togliere "#dest " dalla mia stringa di comando
-		strtok(input, " ");
-		switch(cmdId) {
-		case 0:
-			fprintf(stderr, "Error:not a valid command\n");
-			continue;
-		case MSG_LOGIN:
-			msg->type = MSG_LOGIN;
-			msg->msglen = strlen(username);
-			msg->content = username;
-			break;
-		case MSG_SINGLE:
-			msg->type = MSG_SINGLE;
-			msg->receiver = strdup(strtok(0, DELIM_CHAR));
-			int i = -1, j = 0;
-			while(i != 0) 
-				if (backup[j++] == ':') i++;
-			msg->content = backup+j;
-			msg->msglen = strlen(msg->content);
-			break;
-		case MSG_BRDCAST:
-			msg->content = strdup(strtok(0, DELIM_CHAR));
-			msg->msglen = strlen(msg->content);
-			break;
-		case MSG_LIST:
-			msg->type = MSG_LIST;
-			break;
-		case MSG_LOGOUT:
-			msg->type = MSG_LOGOUT;
-			go = 0;
-			printf("A presto %s!\n", username);
-			break;
+		switch(cmdMatcher(input)) {
+
+		case 0:	fprintf(stderr, "Error:not a valid command\n");	continue;
+		case MSG_LOGIN:		CSLogin(username, msg);		break;
+		case MSG_SINGLE:	CSSingle(input, msg);		break;
+		case MSG_BRDCAST:					break;
+		case MSG_LIST:		CSList(msg);			break;
+		case MSG_LOGOUT:	CSLogout(msg); 	go = 0;		break;
 		}
 		write(sock, marshal(msg), SL);
 	}
+	printf("A presto %s!\n", username);
 	exit(0);
 }
 
@@ -68,7 +40,7 @@ void* clientListener(void* data) {
 			printf("%s\n", msg->content);
 			break;
 		case MSG_ERROR:
-			fprintf(stderr, "Errore: qualcosa e' andato storto\n");
+			fprintf(stderr, "%s\n", msg->content);
 			break;
 		default:
 			fprintf(stderr, "Errore: client ha ricevuto un comando sconosciuto\n");
@@ -122,7 +94,7 @@ int main(int argc, char** argv) {
 	msg = calloc(1, sizeof(msg_t));
 	msg = unMarshal(input);
 	if (msg->type == MSG_ERROR) {
-		fprintf(stderr, "Error 1: user not found\n");
+		fprintf(stderr, "Errore: utente non registrato\n");
 		exit(1);
 	} else
 		printf("Benvenuto %s!\n", username);
