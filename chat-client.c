@@ -51,6 +51,7 @@ void* clientListener(void* data) {
 
 int main(int argc, char** argv) {
 	username = calloc(SL, sizeof(char));
+	int haveToRegister = 0;
 	if (argc > 1) {
 		if( strcmp(argv[1], "-h") == 0){
 			printf("Scriviamo l'aiuto\n");
@@ -58,11 +59,11 @@ int main(int argc, char** argv) {
 		}
 
 		if ( strcmp(argv[1], "-r") == 0 ) {
-			//registra l'utente nella hash
-		} else {
-			username = argv[1];
+			haveToRegister = 1;
+			username = argv[3];
 		}
-
+		else
+			username = argv[1];
 	} else {
 		printf("Error 2: ./chat-client -h for help\n");
 		exit(2);
@@ -81,17 +82,37 @@ int main(int argc, char** argv) {
 	connect(sock, (struct sockaddr*) &server, sizeof(struct sockaddr_in));
 
 
-	//Gestione del Login
 	msg_t* msg = calloc(1, sizeof(msg_t));
-	msg->type = MSG_LOGIN;
-	msg->msglen = strlen(username);
-	msg->content = username;
+
+	//Gestione della registrazione
+	if (haveToRegister) {
+		char* fullname = calloc(SL, sizeof(char));
+		char* email;
+		sprintf(fullname, "%s %s", strtok(argv[2], " "), strtok(0, " "));
+		email = strdup(strtok(0, " "));
+		CSRelog(username, fullname, email, msg);
+		write(sock, marshal(msg), SL);
+
+		input = calloc(SL, sizeof(char));
+		read(sock, input, SL);
+		fprintf(stderr, "%s\n", input);
+		msg = unMarshal(input);
+		if (msg->type == MSG_ERROR) {
+			fprintf(stderr, "%s\n", msg->content);
+			exit(3);
+		}
+		if (msg->type == MSG_OK)
+			printf("Sei stato registrato con successo\n");
+
+	}
+
+	//Gestione del Login
+	CSLogin(username, msg);
 	write(sock, marshal(msg), SL);
 
-	free(msg);
 	input = calloc(SL, sizeof(char));
 	read(sock, input, SL);
-	msg = calloc(1, sizeof(msg_t));
+	bzero(msg, sizeof(msg));
 	msg = unMarshal(input);
 	if (msg->type == MSG_ERROR) {
 		fprintf(stderr, "Errore: utente non registrato\n");

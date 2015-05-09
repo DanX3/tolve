@@ -7,7 +7,7 @@
 #include <string.h>
 
 #define MSG_LOGIN	'L' //login
-#define MSG_RELOG 	'R' //register and login
+#define MSG_REGLOG 	'R' //register and login
 #define MSG_OK		'O' //OK
 #define MSG_ERROR 	'E' //error
 #define MSG_SINGLE 	'S' //message to single user

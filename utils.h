@@ -39,6 +39,8 @@ char* listLoggedUser(StringList);	//elenca gli utenti connessi restituendoli in 
 int checkLoggedUser(char*, StringList);	//controlla se un utente e' connesso
 void removeLoggedUser(char*, StringList);//rimuove un utente dalla lista degli utenti connessi
 
+//message
+
 
 #include "utils/misc.c"
 #include "utils/log.c"

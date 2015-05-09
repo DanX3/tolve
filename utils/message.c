@@ -16,6 +16,12 @@ void CSLogin(char *username, msg_t* msg) {
 	createMessage(MSG_LOGIN, 0, 0, username, msg);
 }
 
+void CSRelog(char* username, char* fullname, char* email, msg_t* msg) {
+	char* userInfo = calloc(SL, sizeof(char));
+	sprintf(userInfo, "%s:%s:%s", username, fullname, email);
+	createMessage(MSG_REGLOG, 0, 0, userInfo, msg);
+}
+
 void CSList(msg_t* msg) {
 	createMessage(MSG_LIST, 0, 0, 0, msg);
 }
