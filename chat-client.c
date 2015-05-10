@@ -7,49 +7,21 @@ void* clientSender(void* data) {
 	char* input = calloc(SL, sizeof(char));
 	size_t len = SL;
 	msg_t *msg = calloc(1, sizeof(msg_t));
-	int cmdId, go = 1;
+	int go = 1;
 	while (go) {
 		getline(&input, &len, stdin);
-		char* backup = strdup(input);
-		input = strtok(input, "\n");
-		
-		cmdId = cmdMatcher(input);
-		bzero(msg, sizeof(msg));
-		//Devo togliere "#dest " dalla mia stringa di comando
-		strtok(input, " ");
-		switch(cmdId) {
-		case 0:
-			fprintf(stderr, "Error:not a valid command\n");
-			continue;
-		case MSG_LOGIN:
-			msg->type = MSG_LOGIN;
-			msg->msglen = strlen(username);
-			msg->content = username;
-			break;
-		case MSG_SINGLE:
-			msg->type = MSG_SINGLE;
-			msg->receiver = strdup(strtok(0, DELIM_CHAR));
-			int i = -1, j = 0;
-			while(i != 0) 
-				if (backup[j++] == ':') i++;
-			msg->content = backup+j;
-			msg->msglen = strlen(msg->content);
-			break;
-		case MSG_BRDCAST:
-			msg->content = strdup(strtok(0, DELIM_CHAR));
-			msg->msglen = strlen(msg->content);
-			break;
-		case MSG_LIST:
-			msg->type = MSG_LIST;
-			break;
-		case MSG_LOGOUT:
-			msg->type = MSG_LOGOUT;
-			go = 0;
-			printf("A presto %s!\n", username);
-			break;
+		switch(cmdMatcher(input)) {
+
+		case 0:	fprintf(stderr, "Error:not a valid command\n");	continue;
+		case MSG_LOGIN:		CSLogin(username, msg);		break;
+		case MSG_SINGLE:	CSSingle(input, msg);		break;
+		case MSG_BRDCAST:					break;
+		case MSG_LIST:		CSList(msg);			break;
+		case MSG_LOGOUT:	CSLogout(msg); 	go = 0;		break;
 		}
 		write(sock, marshal(msg), SL);
 	}
+	printf("A presto %s!\n", username);
 	exit(0);
 }
 
@@ -68,7 +40,7 @@ void* clientListener(void* data) {
 			printf("%s\n", msg->content);
 			break;
 		case MSG_ERROR:
-			fprintf(stderr, "Errore: qualcosa e' andato storto\n");
+			fprintf(stderr, "%s\n", msg->content);
 			break;
 		default:
 			fprintf(stderr, "Errore: client ha ricevuto un comando sconosciuto\n");
@@ -79,6 +51,7 @@ void* clientListener(void* data) {
 
 int main(int argc, char** argv) {
 	username = calloc(SL, sizeof(char));
+	int haveToRegister = 0;
 	if (argc > 1) {
 		if( strcmp(argv[1], "-h") == 0){
 			printf("Scriviamo l'aiuto\n");
@@ -86,11 +59,11 @@ int main(int argc, char** argv) {
 		}
 
 		if ( strcmp(argv[1], "-r") == 0 ) {
-			//registra l'utente nella hash
-		} else {
-			username = argv[1];
+			haveToRegister = 1;
+			username = argv[3];
 		}
-
+		else
+			username = argv[1];
 	} else {
 		printf("Error 2: ./chat-client -h for help\n");
 		exit(2);
@@ -109,20 +82,40 @@ int main(int argc, char** argv) {
 	connect(sock, (struct sockaddr*) &server, sizeof(struct sockaddr_in));
 
 
-	//Gestione del Login
 	msg_t* msg = calloc(1, sizeof(msg_t));
-	msg->type = MSG_LOGIN;
-	msg->msglen = strlen(username);
-	msg->content = username;
+
+	//Gestione della registrazione
+	if (haveToRegister) {
+		char* fullname = calloc(SL, sizeof(char));
+		char* email;
+		char* name = strtok(argv[2], " ");
+		char* surname = strtok(0, " ");
+		sprintf(fullname, "%s %s", name, surname);
+		email = strdup(strtok(0, "\n"));
+		CSRelog(username, fullname, email, msg);
+		write(sock, marshal(msg), SL);
+
+		input = calloc(SL, sizeof(char));
+		read(sock, input, SL);
+		msg = unMarshal(input);
+		if (msg->type == MSG_ERROR) {
+			fprintf(stderr, "%s\n", msg->content);
+			exit(3);
+		}
+		printf("Sei stato registrato con successo\n");
+
+	}
+
+	//Gestione del Login
+	CSLogin(username, msg);
 	write(sock, marshal(msg), SL);
 
-	free(msg);
 	input = calloc(SL, sizeof(char));
 	read(sock, input, SL);
-	msg = calloc(1, sizeof(msg_t));
+	bzero(msg, sizeof(msg));
 	msg = unMarshal(input);
 	if (msg->type == MSG_ERROR) {
-		fprintf(stderr, "Error 1: user not found\n");
+		fprintf(stderr, "Errore: utente non registrato\n");
 		exit(1);
 	} else
 		printf("Benvenuto %s!\n", username);
