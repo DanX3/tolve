@@ -1,6 +1,4 @@
 //Return a char[24] as a timestamp
-
-
 char* timestamp() {
 	time_t t = time(0);
 	return strtok(ctime(&t), "\n"); //Delete the newLine char from timestamp
@@ -37,4 +35,9 @@ msg_t* unMarshal(char* str){
 	toRet->receiver = strdup(strtok(0, DELIM_CHAR));
 	toRet->msglen 	= atoi  (strtok(0, DELIM_CHAR));
 	toRet->content  = strdup(strtok(0, "\n"));
+}
+
+void signalHandler(int signum) {
+	printf("Server interrupted: signal (%d) received\n", signum);
+	exit (signum);
 }

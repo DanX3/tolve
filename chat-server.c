@@ -23,6 +23,8 @@ void Server(){
 	//Settando l'ambiente
 	pthread_mutex_init(&logfileMutex, NULL);
 	loggedList = initLoggedUser();
+	signal(SIGTERM, signalHandler);
+	signal(SIGINT, signalHandler);
 
 	//Organizzazione socket server-side
 	int sock, newSocket;
@@ -37,6 +39,9 @@ void Server(){
 		exit(-1);	
 	}	
 	listen(sock, 10);
+
+	
+
 	while(go){
 		newSocket = accept(sock, NULL, 0);
 		pthread_t t;
@@ -83,7 +88,6 @@ void*  Worker(void* data) {
 			}
 			break;
 		case MSG_REGLOG: {
-			//fprintf(stderr, "Server has received %s\n", msg->content);
 			hdata_t *userInfo = string2hdata(msg->content);
 			if ( INSERISCIHASH(userInfo->uname, userInfo, H) == 0 )
 				SCError("Errore: collisione nell'inserimento nella hash table", msg);
