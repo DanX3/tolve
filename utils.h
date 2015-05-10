@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <time.h>
+#include <signal.h>
 #include "hash.h" //!Keep this for including string stdio and stdlib
 
 #define DELIM_CHAR ":"
