@@ -82,13 +82,17 @@ void*  Worker(void* data) {
 				writeAccessToLog(1, username);
 			}
 			break;
-		case MSG_REGLOG:
-			if ( INSERISCIHASH(string2hdata(msg->content)->uname, string2hdata(msg->content), H) == 0 )
+		case MSG_REGLOG: {
+			//fprintf(stderr, "Server has received %s\n", msg->content);
+			hdata_t *userInfo = string2hdata(msg->content);
+			if ( INSERISCIHASH(userInfo->uname, userInfo, H) == 0 )
 				SCError("Errore: collisione nell'inserimento nella hash table", msg);
-			else
+			else 
 				SCOK(msg);
+
 			write(socket, marshal(msg), SL);
 			break;
+		}
 		case MSG_SINGLE:
 			if ( CERCAHASH(msg->receiver, H) == 0 ) {
 				SCError("Errore: destinatario non registrato", msg);

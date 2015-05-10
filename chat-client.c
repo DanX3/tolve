@@ -88,21 +88,21 @@ int main(int argc, char** argv) {
 	if (haveToRegister) {
 		char* fullname = calloc(SL, sizeof(char));
 		char* email;
-		sprintf(fullname, "%s %s", strtok(argv[2], " "), strtok(0, " "));
-		email = strdup(strtok(0, " "));
+		char* name = strtok(argv[2], " ");
+		char* surname = strtok(0, " ");
+		sprintf(fullname, "%s %s", name, surname);
+		email = strdup(strtok(0, "\n"));
 		CSRelog(username, fullname, email, msg);
 		write(sock, marshal(msg), SL);
 
 		input = calloc(SL, sizeof(char));
 		read(sock, input, SL);
-		fprintf(stderr, "%s\n", input);
 		msg = unMarshal(input);
 		if (msg->type == MSG_ERROR) {
 			fprintf(stderr, "%s\n", msg->content);
 			exit(3);
 		}
-		if (msg->type == MSG_OK)
-			printf("Sei stato registrato con successo\n");
+		printf("Sei stato registrato con successo\n");
 
 	}
 
