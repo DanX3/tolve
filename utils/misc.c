@@ -36,8 +36,3 @@ msg_t* unMarshal(char* str){
 	toRet->msglen 	= atoi  (strtok(0, DELIM_CHAR));
 	toRet->content  = strdup(strtok(0, "\n"));
 }
-
-void signalHandler(int signum) {
-	printf("Server interrupted: signal (%d) received\n", signum);
-	exit (signum);
-}
