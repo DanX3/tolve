@@ -9,6 +9,14 @@ void* Worker(void*);
 pthread_mutex_t logfileMutex;
 hash_t H;
 StringList loggedList;
+int sock, newSocket;
+
+void signalHandler(int signum) {
+	saveHashInUserfile(H);
+	close(sock);
+	printf("Server interrupted: signal (%d) received\n", signum);
+	exit(0);
+}
 
 void Server(){
 	printf("server pid: %d\n", getpid());
@@ -23,9 +31,10 @@ void Server(){
 	//Settando l'ambiente
 	pthread_mutex_init(&logfileMutex, NULL);
 	loggedList = initLoggedUser();
+	signal(SIGTERM, signalHandler);
+	signal(SIGINT, signalHandler);
 
 	//Organizzazione socket server-side
-	int sock, newSocket;
 	struct sockaddr_in my_addr;
 	bzero(&my_addr,sizeof(struct sockaddr_in));
 	sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -37,16 +46,15 @@ void Server(){
 		exit(-1);	
 	}	
 	listen(sock, 10);
+
+	
+
 	while(go){
 		newSocket = accept(sock, NULL, 0);
 		pthread_t t;
 		pthread_create(&t, 0, Worker, (void*)&newSocket);
 		pthread_detach(t);
-		//termina su SIGTERM o SIGINT (go = 0)
 	}
-	saveHashInUserfile(H);
-	close(sock);
-	exit(0);
 }
 
 void*  Dispatcher(void* data) {
@@ -82,13 +90,16 @@ void*  Worker(void* data) {
 				writeAccessToLog(1, username);
 			}
 			break;
-		case MSG_REGLOG:
-			if ( INSERISCIHASH(string2hdata(msg->content)->uname, string2hdata(msg->content), H) == 0 )
-				SCError("Errore: collisione nell'inserimento nella hash table", msg);
-			else
+		case MSG_REGLOG: {
+			hdata_t *userInfo = string2hdata(msg->content);
+			if ( INSERISCIHASH(userInfo->uname, userInfo, H) == 0 )
+				SCError("Errore: collisione nella hash table o utente gia' registrato", msg);
+			else 
 				SCOK(msg);
+
 			write(socket, marshal(msg), SL);
 			break;
+		}
 		case MSG_SINGLE:
 			if ( CERCAHASH(msg->receiver, H) == 0 ) {
 				SCError("Errore: destinatario non registrato", msg);
