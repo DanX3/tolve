@@ -49,8 +49,6 @@ void Server(){
 	}	
 	listen(sock, 10);
 
-	
-
 	while(go){
 		newSocket = accept(sock, NULL, 0);
 		pthread_t t;
@@ -60,10 +58,7 @@ void Server(){
 }
 
 void*  Dispatcher(void* data) {
-	//while (go)
-	//prod-cons buffer circolare
-	//controlla se gli utenti sono online (hash table in mutex)
-	//nel caso invia il messaggio tramite socket
+
 }
 
 void*  Worker(void* data) {
@@ -79,28 +74,38 @@ void*  Worker(void* data) {
 		switch(msg->type) {
 		case MSG_LOGIN:
 			username = msg->content;
+			strcpy(username, msg->content);
 			bzero(msg, sizeof(msg_t));
-			if (CERCAHASH(username, H) == 0) {
-				SCError("Utente non registrato", msg);
+			if ( checkLoggedUser(username, loggedList) ) {
+				SCError("Errore: hai gia' effettuato l'accesso", msg);
+				writeErrorToLog("utente gia' connesso", username);
 				write(socket, marshal(msg), SL);
 				pthread_exit(0);
-			} else {
-				SCOK(msg);
-				write(socket, marshal(msg), SL);
-				addLoggedUser(username, loggedList);
-				getDataFrom(username, H)->sockid = socket;
-				writeAccessToLog(1, username);
-
-				pthread_mutex_lock(&activeThreadsMutex);
-				activeThreads++;
-				pthread_mutex_unlock(&activeThreadsMutex);
 			}
+
+			if ( CERCAHASH(username, H) == 0 ) {
+				SCError("Errore: utente non registrato", msg);
+				writeErrorToLog("utente non registrato", username);
+				write(socket, marshal(msg), SL);
+				pthread_exit(0);
+			} 
+
+			SCOK(msg);
+			write(socket, marshal(msg), SL);
+			addLoggedUser(username, loggedList);
+			getDataFrom(username, H)->sockid = socket;
+			writeAccessToLog(1, username);
+
+			pthread_mutex_lock(&activeThreadsMutex);
+			activeThreads++;
+			pthread_mutex_unlock(&activeThreadsMutex);
 			break;
 		case MSG_REGLOG: {
 			hdata_t *userInfo = string2hdata(msg->content);
-			if ( INSERISCIHASH(userInfo->uname, userInfo, H) == 0 )
+			if ( INSERISCIHASH(userInfo->uname, userInfo, H) == 0 ) {
 				SCError("Errore: collisione nella hash table o utente gia' registrato", msg);
-			else 
+				writeErrorToLog("collisione nella hash table o utente gia' registrato", username);
+			} else 
 				SCOK(msg);
 
 			write(socket, marshal(msg), SL);
@@ -109,10 +114,13 @@ void*  Worker(void* data) {
 		case MSG_SINGLE:
 			if ( CERCAHASH(msg->receiver, H) == 0 ) {
 				SCError("Errore: destinatario non registrato", msg);
+				writeErrorToLog("destinatario non registrato", username);
+
 				write(socket, marshal(msg), SL);
 			} else
 			if ( checkLoggedUser(msg->receiver, loggedList) == 0) {
 				SCError("Errore: destinatario non connesso", msg);
+				writeErrorToLog("destinatario non connesso", username);
 				write(socket, marshal(msg), SL);
 			} else {
 				pthread_mutex_lock(&logfileMutex);
@@ -120,13 +128,13 @@ void*  Worker(void* data) {
 				pthread_mutex_unlock(&logfileMutex);
 
 				int recvSock = getDataFrom(msg->receiver, H)->sockid;
-				SCSingle(getDataFrom(username, H)->fullname, msg->content, msg);
+				SCSingle(username, msg->content, msg);
 				write(recvSock, marshal(msg), SL);
 
 			}
 			break;
 		case MSG_BRDCAST: {
-			SCSingle(getDataFrom(username, H)->fullname, msg->content, msg);
+			SCBroadcast(username, msg->content, msg);
 			int usersWritten = 0, i = -1;
 			char *currentUser;
 			while (usersWritten < activeThreads - 1) {
@@ -148,6 +156,7 @@ void*  Worker(void* data) {
 		case MSG_LIST:
 			SCList(listLoggedUser(loggedList), msg);
 			write(socket, marshal(msg), SL);
+
 			break;
 		case MSG_LOGOUT:
 			removeLoggedUser(username, loggedList);
@@ -161,9 +170,6 @@ void*  Worker(void* data) {
 			pthread_mutex_unlock(&activeThreadsMutex);
 
 			pthread_exit(0);
-		default:
-			fprintf(stderr, "Errore: comando richiesto non valido\n");
-			break;
 		}
 		bzero(input, sizeof(input));
 	}

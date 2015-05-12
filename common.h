@@ -17,6 +17,7 @@
 #define CMD_LOGOUT 	"#x"
 #define CMD_LIST 	"#ls"
 #define CMD_SEND 	"#dest"
+#define HELP_PATH 	"help.txt"
 
 typedef struct struct_hdata_t {
 	char * uname; // username
