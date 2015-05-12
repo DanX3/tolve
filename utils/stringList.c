@@ -33,6 +33,17 @@ int checkLoggedUser(char *username, StringList db) {
 	return 0;
 }
 
+int existsUserAt(int i, StringList db) {
+	if ( db[i] == 0 )
+		return 0;
+	return 1;
+}
+
+char* getUserAt(int i, StringList db) {
+	if (db[i] == 0)
+		fprintf(stderr, "Errore: non esiste alcun utente alla posizione %d\n", i);
+	return db[i];
+}
 
 void removeLoggedUser(char *userToDelete, StringList db) {
 	int i = -1;

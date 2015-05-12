@@ -38,7 +38,8 @@ void CSLogout(msg_t* msg) {
 }
 
 void CSBroadcast(char* content, msg_t* msg){
-	#dest *:messagiodainviare
+	strtok(content, DELIM_CHAR);
+	createMessage(MSG_BRDCAST, 0, 0, strtok(0, "\n"), msg);
 }
 
 void SCError(char* errorMessage, msg_t* msg) {

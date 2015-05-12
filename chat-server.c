@@ -1,12 +1,14 @@
 #include "utils.h"
 
 int go = 1;
+int activeThreads = 0;
 
 void Server(void);
 void* Dispatcher(void*);
 void* Worker(void*);
 
 pthread_mutex_t logfileMutex;
+pthread_mutex_t activeThreadsMutex;
 hash_t H;
 StringList loggedList;
 int sock, newSocket;
@@ -88,6 +90,10 @@ void*  Worker(void* data) {
 				addLoggedUser(username, loggedList);
 				getDataFrom(username, H)->sockid = socket;
 				writeAccessToLog(1, username);
+
+				pthread_mutex_lock(&activeThreadsMutex);
+				activeThreads++;
+				pthread_mutex_unlock(&activeThreadsMutex);
 			}
 			break;
 		case MSG_REGLOG: {
@@ -119,9 +125,26 @@ void*  Worker(void* data) {
 
 			}
 			break;
-		case MSG_BRDCAST:
-			//message_broadcast
+		case MSG_BRDCAST: {
+			SCSingle(getDataFrom(username, H)->fullname, msg->content, msg);
+			int usersWritten = 0, i = -1;
+			char *currentUser;
+			while (usersWritten < activeThreads - 1) {
+				i++;
+				if (!existsUserAt(i, loggedList))		continue;
+				currentUser = getUserAt(i, loggedList);
+				if ( strcmp( currentUser, username) == 0 )	continue;
+
+				//If the receiver is correct, send to him the message
+				pthread_mutex_lock(&logfileMutex);
+				writeMessageToLog(username,  msg->receiver, msg->content);
+				pthread_mutex_unlock(&logfileMutex);
+
+				write( getDataFrom(currentUser, H)->sockid, marshal(msg), SL);
+				usersWritten++;
+			}
 			break;
+		}
 		case MSG_LIST:
 			SCList(listLoggedUser(loggedList), msg);
 			write(socket, marshal(msg), SL);
@@ -132,6 +155,11 @@ void*  Worker(void* data) {
 			writeAccessToLog(0, username);
 			free(input);
 			free(msg);
+
+			pthread_mutex_lock(&activeThreadsMutex);
+			activeThreads--;
+			pthread_mutex_unlock(&activeThreadsMutex);
+
 			pthread_exit(0);
 		default:
 			fprintf(stderr, "Errore: comando richiesto non valido\n");
