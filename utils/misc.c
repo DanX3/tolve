@@ -11,7 +11,7 @@ int cmdMatcher(char* cmd) {
 	if (strncmp(cmd, CMD_LOGOUT, strlen(CMD_LOGOUT)) == 0 )	return MSG_LOGOUT;
 
 	if (strncmp(cmd, CMD_SEND, strlen(CMD_SEND)) == 0) {
-		if (cmd[6] == ':')	return MSG_BRDCAST;
+		if (cmd[6] == '*')	return MSG_BRDCAST;
 		else			return MSG_SINGLE;
 	}
 	return 0;
