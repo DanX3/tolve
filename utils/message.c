@@ -37,6 +37,10 @@ void CSLogout(msg_t* msg) {
 	createMessage(MSG_LOGOUT, 0, 0, 0, msg);
 }
 
+void CSBroadcast(char* content, msg_t* msg){
+	#dest *:messagiodainviare
+}
+
 void SCError(char* errorMessage, msg_t* msg) {
 	createMessage(MSG_ERROR, 0, 0, errorMessage, msg);
 }

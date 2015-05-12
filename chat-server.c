@@ -79,7 +79,7 @@ void*  Worker(void* data) {
 			username = msg->content;
 			bzero(msg, sizeof(msg_t));
 			if (CERCAHASH(username, H) == 0) {
-				SCError("", msg);
+				SCError("Utente non registrato", msg);
 				write(socket, marshal(msg), SL);
 				pthread_exit(0);
 			} else {

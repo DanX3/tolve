@@ -1,0 +1,2 @@
+We update the user-file txt only when the server is killed. It is fast but not safe, in case unexpected death of the server
+

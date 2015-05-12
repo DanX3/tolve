@@ -15,7 +15,7 @@ void* clientSender(void* data) {
 		case 0:	fprintf(stderr, "Error:not a valid command\n");	continue;
 		case MSG_LOGIN:		CSLogin(username, msg);		break;
 		case MSG_SINGLE:	CSSingle(input, msg);		break;
-		case MSG_BRDCAST:					break;
+		case MSG_BRDCAST:	CSBroadcast(input, msg);	break;
 		case MSG_LIST:		CSList(msg);			break;
 		case MSG_LOGOUT:	CSLogout(msg); 	go = 0;		break;
 		}
