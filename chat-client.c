@@ -34,7 +34,10 @@ void* clientListener(void* data) {
 		msg = unMarshal(buffer);
 		switch(msg->type) {
 		case MSG_SINGLE:
-			printf("%s: %s\n", msg->sender, msg->content);
+			printf("%s:%s:%s\n", msg->sender, username,  msg->content);
+			break;
+		case MSG_BRDCAST:
+			printf("%s:*:%s\n", msg->sender, msg->content);
 			break;
 		case MSG_LIST:
 			printf("%s\n", msg->content);
@@ -54,7 +57,12 @@ int main(int argc, char** argv) {
 	int haveToRegister = 0;
 	if (argc > 1) {
 		if( strcmp(argv[1], "-h") == 0){
-			printf("Scriviamo l'aiuto\n");
+			FILE* help = fopen(HELP_PATH, "r");
+			size_t len = 0;
+			char *line = 0;
+			ssize_t read;
+			while ( (read = getline(&line, &len, help)) != -1 )
+				printf("%s", line);
 			exit(0);
 		}
 
@@ -115,7 +123,7 @@ int main(int argc, char** argv) {
 	bzero(msg, sizeof(msg));
 	msg = unMarshal(input);
 	if (msg->type == MSG_ERROR) {
-		fprintf(stderr, "Errore: utente non registrato\n");
+		fprintf(stderr, "%s\n", msg->content);
 		exit(1);
 	} else
 		printf("Benvenuto %s!\n", username);

@@ -1,0 +1,3 @@
+Uso: chat-client [OPZIONI] username
+-r "Nome Cognome email" 	Registra l'utente al servizio di chat, fornendo la stringa 
+-h				Stampa questo aiuto

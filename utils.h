@@ -48,4 +48,4 @@ void removeLoggedUser(char*, StringList);//rimuove un utente dalla lista degli u
 #include "utils/stringList.c"
 #include "utils/hdata.c"
 #include "utils/message.c"
-
+#include "utils/ringBuffer.c"

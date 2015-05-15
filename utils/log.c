@@ -38,3 +38,8 @@ void writeMessageToLog(char* sender, char* receiver, char* content){
 	fclose(logfile);
 }
 
+void writeErrorToLog(char* content, char* username){
+	FILE *logfile = fopen(LOGFILE_NAME, "a");
+	fprintf(logfile, "Errore da %s: %s\n", username, content);
+	fclose(logfile);
+}

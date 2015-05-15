@@ -1,4 +1,4 @@
-We update the user-file txt only when the server is killed. It is fast but not safe, in case unexpected death of the server
-Marshalling to fix
-Preventing user from choosing * char or something like that
-A user can log twice 
+Test the filling up of the ring buffer
+terminating setting go = 0
+every message must  be sent by dispatcher thread
+./chat-server user-file log-file

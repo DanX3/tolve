@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define MSG_LOGIN	'L' //login
 #define MSG_REGLOG 	'R' //register and login
@@ -17,6 +18,7 @@
 #define CMD_LOGOUT 	"#x"
 #define CMD_LIST 	"#ls"
 #define CMD_SEND 	"#dest"
+#define HELP_PATH 	"help.txt"
 
 typedef struct struct_hdata_t {
 	char * uname; // username
