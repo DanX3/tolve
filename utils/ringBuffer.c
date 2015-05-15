@@ -1,7 +1,4 @@
-
-
-
-void init (RingBuffer * b) {
+void initRingBuffer (RingBuffer * b) {
 	pthread_mutex_init(&b->M,    NULL);
 	pthread_cond_init(&b->PIENO, NULL);
 	pthread_cond_init(&b->VUOTO, NULL);
