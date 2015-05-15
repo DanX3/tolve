@@ -2,8 +2,7 @@
 
 int go = 1;
 int activeThreads = 0;
-char* ringBuffer;
-int readingPoint, writingPoint;
+RingBuffer* ringBuffer;
 
 void Server(void);
 void* Dispatcher(void*);
@@ -25,19 +24,14 @@ void signalHandler(int signum) {
 void Server(){
 	printf("server pid: %d\n", getpid());
 
-	//Inizializzazione tabella utenti
+	//Settando l'ambiente
 	H = CREAHASH();
 	loadUserfileInHash(H);
-
-	//Inizializzazione logFile
-	initLog();
-
-	//Settando l'ambiente
 	pthread_mutex_init(&logfileMutex, NULL);
+	initLog();
 	loggedList = initLoggedUser();
-	ringBuffer = calloc(256*SL, sizeof(char));
-	readingPoint = 0;
-	writingPoint = 0;
+	ringBuffer = malloc(sizeof(RingBuffer));
+	initRingBuffer(ringBuffer);
 	signal(SIGTERM, signalHandler);
 	signal(SIGINT, signalHandler);
 
@@ -53,7 +47,11 @@ void Server(){
 		exit(-1);	
 	}	
 	listen(sock, 10);
-
+#if 0
+	pthread_t dispatcher;
+	pthread_create(&dispatcher, 0, Dispatcher, 0);
+	pthread_join(dispatcher, 0);
+#endif	
 	while(go){
 		newSocket = accept(sock, NULL, 0);
 		pthread_t t;
@@ -63,7 +61,32 @@ void Server(){
 }
 
 void*  Dispatcher(void* data) {
+	char* stringMessage = calloc(SL, sizeof(char));
+	while (go) {
+		msg_t* msg = unMarshal(readBuffer(ringBuffer));
+		switch(msg->type) {
+		case MSG_BRDCAST: {
+			SCBroadcast(msg->sender, msg->content, msg);
+			int usersWritten = 0, i = -1;
+			char *currentUser;
+			while (usersWritten < activeThreads - 1) {
+				i++;
+				if (!existsUserAt(i, loggedList))		continue;
+				currentUser = getUserAt(i, loggedList);
+				if ( strcmp( currentUser, msg->sender) == 0 )	continue;
 
+				//If the receiver is correct, send to him the message
+				pthread_mutex_lock(&logfileMutex);
+				writeMessageToLog(msg->sender,  msg->receiver, msg->content);
+				pthread_mutex_unlock(&logfileMutex);
+
+				write( getDataFrom(currentUser, H)->sockid, marshal(msg), SL);
+				usersWritten++;
+			}
+			break;
+		}
+		}
+	}
 }
 
 void*  Worker(void* data) {
@@ -142,26 +165,10 @@ void*  Worker(void* data) {
 
 			}
 			break;
-		case MSG_BRDCAST: {
-			SCBroadcast(username, msg->content, msg);
-			int usersWritten = 0, i = -1;
-			char *currentUser;
-			while (usersWritten < activeThreads - 1) {
-				i++;
-				if (!existsUserAt(i, loggedList))		continue;
-				currentUser = getUserAt(i, loggedList);
-				if ( strcmp( currentUser, username) == 0 )	continue;
-
-				//If the receiver is correct, send to him the message
-				pthread_mutex_lock(&logfileMutex);
-				writeMessageToLog(username,  msg->receiver, msg->content);
-				pthread_mutex_unlock(&logfileMutex);
-
-				write( getDataFrom(currentUser, H)->sockid, marshal(msg), SL);
-				usersWritten++;
-			}
-			break;
-		}
+		case MSG_BRDCAST:
+			fprintf(stderr, "#");
+			msg->sender = username;
+			writeBuffer(marshal(msg), ringBuffer);
 		case MSG_LIST:
 			SCList(listLoggedUser(loggedList), msg);
 			write(socket, marshal(msg), SL);
