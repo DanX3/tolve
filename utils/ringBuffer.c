@@ -1,20 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <pthread.h>
-#include <string.h>
 
-#define OVER (-1)
-#define max 2000
-#define BUFFER_SIZE 100
-
-typedef struct {
-	char buffer[BUFFER_SIZE];
-	pthread_mutex_t M;
-	int readpos, writepos;
-	int cont;
-	pthread_cond_t PIENO;
-	pthread_cond_t VUOTO;
-} RingBuffer;
 
 
 void init (RingBuffer * b) {

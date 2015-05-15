@@ -41,7 +41,23 @@ int checkLoggedUser(char*, StringList);	//controlla se un utente e' connesso
 void removeLoggedUser(char*, StringList);//rimuove un utente dalla lista degli utenti connessi
 
 //message
+void createMessage(char, char*, char*, char*, msg_t*);
+void CSLogin(char*, msg_t*);		//Messaggi da Client a Server
+void CSRelog(char*, char*, char*, msg_t*);//
+void CSList(msg_t*);			//
+void CSSingle(char*, msg_t*);		//
+void CSLogout(msg_t*);			//
+void CSBroadcast(char*, msg_t*);	//
+void SCError(char*, msg_t*);		//Messaggi da Server a client
+void SCOK(msg_t*);			//
+void SCSingle(char*, char*, msg_t*);	//
+void SCBroadcast(char*, char*, msg_t*);		//
+void SCList(char*, msg_t*);			//
 
+//ringBuffer
+void initRingBuffer(RingBuffer*);	//Inizializza un tipo di dato RingBuffer
+void writeBuffer(char*, RingBuffer*);	//Scrive un messaggio sul buffer circolare
+char* readBuffer(RingBuffer*);		//Legge un messaggio da buffer circolare
 
 #include "utils/misc.c"
 #include "utils/log.c"

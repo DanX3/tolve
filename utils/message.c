@@ -58,6 +58,6 @@ void SCBroadcast(char* sender, char* content, msg_t* msg) {
 	createMessage(MSG_BRDCAST, sender, 0, content, msg);
 }
 
-SCList(char* loggedList, msg_t* msg) {
+void SCList(char* loggedList, msg_t* msg) {
 	createMessage(MSG_LIST, 0, 0, loggedList, msg);
 }
