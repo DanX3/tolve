@@ -20,9 +20,8 @@
 #define CMD_SEND 	"#dest"
 #define HELP_PATH 	"help.txt"
 
-#define OVER (-1)
 #define max 2000
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 1000
 
 typedef struct struct_hdata_t {
 	char * uname; // username

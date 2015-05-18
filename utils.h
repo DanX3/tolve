@@ -51,8 +51,8 @@ void CSBroadcast(char*, msg_t*);	//
 void SCError(char*, msg_t*);		//Messaggi da Server a client
 void SCOK(msg_t*);			//
 void SCSingle(char*, char*, msg_t*);	//
-void SCBroadcast(char*, char*, msg_t*);		//
-void SCList(char*, msg_t*);			//
+void SCBroadcast(char*, char*, msg_t*);	//
+void SCList(char*, msg_t*);		//
 
 //ringBuffer
 void initRingBuffer(RingBuffer*);	//Inizializza un tipo di dato RingBuffer
