@@ -7,7 +7,6 @@ void* clientSender(void* data) {
 	char* input = calloc(SL, sizeof(char));
 	size_t len = SL;
 	msg_t *msg = calloc(1, sizeof(msg_t));
-	int go = 1;
 	while (go) {
 		getline(&input, &len, stdin);
 		switch(cmdMatcher(input)) {

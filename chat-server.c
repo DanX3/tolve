@@ -147,13 +147,17 @@ void*  Worker(void* data) {
 		case MSG_SINGLE:
 			if ( CERCAHASH(msg->receiver, H) == 0 ) {
 				SCError("Errore: destinatario non registrato", msg);
+				pthread_mutex_lock(&activeThreadsMutex);
 				writeErrorToLog("destinatario non registrato", username);
+				pthread_mutex_unlock(&activeThreadsMutex);
 
 				write(socket, marshal(msg), SL);
 			} else
 			if ( checkLoggedUser(msg->receiver, loggedList) == 0) {
 				SCError("Errore: destinatario non connesso", msg);
+				pthread_mutex_lock(&activeThreadsMutex);
 				writeErrorToLog("destinatario non connesso", username);
+				pthread_mutex_unlock(&activeThreadsMutex);
 				write(socket, marshal(msg), SL);
 			} else {
 				/*
@@ -182,7 +186,9 @@ void*  Worker(void* data) {
 		case MSG_LOGOUT:
 			removeLoggedUser(username, loggedList);
 			getDataFrom(username, H)->sockid = -1;
+			pthread_mutex_lock(&activeThreadsMutex);
 			writeAccessToLog(0, username);
+			pthread_mutex_unlock(&activeThreadsMutex);
 			free(input);
 			free(msg);
 
@@ -194,7 +200,6 @@ void*  Worker(void* data) {
 		}
 		bzero(input, sizeof(input));
 	}
-	//exec reg o ls | prod-cons con dispatcher (buffer circolare)
 }
 
 

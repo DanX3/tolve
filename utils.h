@@ -32,6 +32,7 @@ void saveHashInUserfile(hash_t);	//salva l'attuale hash table in un file di test
 void initLog();				//inizializza il log-file
 char* writeAccess(int, char*);		//scrive l'accesso nel log-file
 char* writeMessage(char*, char*, char*);//scrive un messaggio su log-file
+void writeErrorToLog(char*, char*); 	//scrive un messaggio di errore su log-file
 
 //stringList
 StringList initLoggedUser();		//inizializza la lista di utenti connessi
