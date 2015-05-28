@@ -32,6 +32,7 @@ void saveHashInUserfile(hash_t);	//salva l'attuale hash table in un file di test
 void initLog();				//inizializza il log-file
 char* writeAccess(int, char*);		//scrive l'accesso nel log-file
 char* writeMessage(char*, char*, char*);//scrive un messaggio su log-file
+void writeErrorToLog(char*, char*); 	//scrive un messaggio di errore su log-file
 
 //stringList
 StringList initLoggedUser();		//inizializza la lista di utenti connessi
@@ -41,11 +42,27 @@ int checkLoggedUser(char*, StringList);	//controlla se un utente e' connesso
 void removeLoggedUser(char*, StringList);//rimuove un utente dalla lista degli utenti connessi
 
 //message
+void createMessage(char, char*, char*, char*, msg_t*);
+void CSLogin(char*, msg_t*);		//Messaggi da Client a Server
+void CSRelog(char*, char*, char*, msg_t*);//
+void CSList(msg_t*);			//
+void CSSingle(char*, msg_t*);		//
+void CSLogout(msg_t*);			//
+void CSBroadcast(char*, msg_t*);	//
+void SCError(char*, msg_t*);		//Messaggi da Server a client
+void SCOK(msg_t*);			//
+void SCSingle(char*, char*, msg_t*);	//
+void SCBroadcast(char*, char*, msg_t*);	//
+void SCList(char*, msg_t*);		//
 
+//ringBuffer
+void initRingBuffer(RingBuffer*);	//Inizializza un tipo di dato RingBuffer
+void writeBuffer(char*, RingBuffer*);	//Scrive un messaggio sul buffer circolare
+char* readBuffer(RingBuffer*);		//Legge un messaggio da buffer circolare
 
 #include "utils/misc.c"
 #include "utils/log.c"
 #include "utils/stringList.c"
 #include "utils/hdata.c"
 #include "utils/message.c"
-
+#include "utils/ringBuffer.c"
