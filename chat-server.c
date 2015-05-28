@@ -112,15 +112,15 @@ void*  Worker(void* data) {
 			strcpy(username, msg->content);
 			bzero(msg, sizeof(msg_t));
 			if ( checkLoggedUser(username, loggedList) ) {
-				SCError("Errore: hai gia' effettuato l'accesso", msg);
-				writeErrorToLog("utente gia' connesso", username);
+				SCError(LOGIN_DONE_YET, msg);
+				writeErrorToLog(LOGIN_DONE_YET, username);
 				write(socket, marshal(msg), SL);
 				pthread_exit(0);
 			}
 
 			if ( CERCAHASH(username, H) == 0 ) {
-				SCError("Errore: utente non registrato", msg);
-				writeErrorToLog("utente non registrato", username);
+				SCError(USER_NOT_REGISTERED, msg);
+				writeErrorToLog(USER_NOT_REGISTERED, username);
 				write(socket, marshal(msg), SL);
 				pthread_exit(0);
 			} 
@@ -138,8 +138,8 @@ void*  Worker(void* data) {
 		case MSG_REGLOG: {
 			hdata_t *userInfo = string2hdata(msg->content);
 			if ( INSERISCIHASH(userInfo->uname, userInfo, H) == 0 ) {
-				SCError("Errore: collisione nella hash table o utente gia' registrato", msg);
-				writeErrorToLog("collisione nella hash table o utente gia' registrato", username);
+				SCError(HASH_COLLISION, msg);
+				writeErrorToLog(HASH_COLLISION, username);
 			} else 
 				SCOK(msg);
 
@@ -148,17 +148,17 @@ void*  Worker(void* data) {
 		}
 		case MSG_SINGLE:
 			if ( CERCAHASH(msg->receiver, H) == 0 ) {
-				SCError("Errore: destinatario non registrato", msg);
+				SCError(RECV_NOT_REGISTERED, msg);
 				pthread_mutex_lock(&activeThreadsMutex);
-				writeErrorToLog("destinatario non registrato", username);
+				writeErrorToLog(RECV_NOT_REGISTERED, username);
 				pthread_mutex_unlock(&activeThreadsMutex);
 
 				write(socket, marshal(msg), SL);
 			} else
 			if ( checkLoggedUser(msg->receiver, loggedList) == 0) {
-				SCError("Errore: destinatario non connesso", msg);
+				SCError(RECV_OFFLINE, msg);
 				pthread_mutex_lock(&activeThreadsMutex);
-				writeErrorToLog("destinatario non connesso", username);
+				writeErrorToLog(RECV_OFFLINE, username);
 				pthread_mutex_unlock(&activeThreadsMutex);
 				write(socket, marshal(msg), SL);
 			} else {

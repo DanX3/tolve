@@ -5,14 +5,17 @@ char* timestamp() {
 }
 
 int cmdMatcher(char* cmd) {
-	//leggo quale comando si vuole 2eseguire, modificando un altra istanza
+	//leggo quale comando si vuole eseguire, modificando un altra istanza
 	//di cmd, per non intaccare la stringa originale
+	
+	if (cmd[0] != '#')		return 0;
+
 	if (strncmp(cmd, CMD_LIST, strlen(CMD_LIST)) == 0 )	return MSG_LIST;
 	if (strncmp(cmd, CMD_LOGOUT, strlen(CMD_LOGOUT)) == 0 )	return MSG_LOGOUT;
 
 	if (strncmp(cmd, CMD_SEND, strlen(CMD_SEND)) == 0) {
-		if (cmd[6] == ':')	return MSG_BRDCAST;
-		else			return MSG_SINGLE;
+		if (cmd[6] == ':')		return MSG_BRDCAST;
+		if ( strstr(cmd, ":") - cmd > 6)return MSG_SINGLE;
 	}
 	return 0;
 

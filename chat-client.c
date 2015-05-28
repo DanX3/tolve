@@ -11,12 +11,14 @@ void* clientSender(void* data) {
 		getline(&input, &len, stdin);
 		switch(cmdMatcher(input)) {
 
-		case 0:	fprintf(stderr, "Error:not a valid command\n");	continue;
 		case MSG_LOGIN:		CSLogin(username, msg);		break;
 		case MSG_SINGLE:	CSSingle(input, msg);		break;
 		case MSG_BRDCAST:	CSBroadcast(input, msg);	break;
 		case MSG_LIST:		CSList(msg);			break;
 		case MSG_LOGOUT:	CSLogout(msg); 	go = 0;		break;
+		case 0:
+		default:
+			fprintf(stderr, CMD_NOT_FOUND);	continue;
 		}
 		write(sock, marshal(msg), SL);
 	}
@@ -45,7 +47,7 @@ void* clientListener(void* data) {
 			fprintf(stderr, "%s\n", msg->content);
 			break;
 		default:
-			fprintf(stderr, "Errore: client ha ricevuto un comando sconosciuto\n");
+			fprintf(stderr, CMD_NOT_FOUND);
 			break;
 		}
 	}
