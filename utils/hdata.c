@@ -1,3 +1,5 @@
+char* userfilePath;
+
 hdata_t* string2hdata(char *str) {
 	hdata_t* toRet = malloc(sizeof(hdata_t));
 	str = strtok(str, "\n");
@@ -23,7 +25,7 @@ hdata_t* getDataFrom(char* username, hash_t H) {
 }
 
 void saveHashInUserfile(hash_t H) {
-	FILE *userFile = fopen(USERFILE_NAME, "w");
+	FILE *userFile = fopen(userfilePath, "w");
 	char* buffer = calloc(SL, sizeof(char));
 	int i;
 	for (i=0; i<HL; i++) {
@@ -36,13 +38,16 @@ void saveHashInUserfile(hash_t H) {
 
 
 
-void loadUserfileInHash(hash_t H){
-	FILE *userFile = fopen(USERFILE_NAME, "r");
+void loadUserfileInHash(hash_t H, char* userfilePathArg){
+	userfilePath = strdup(userfilePathArg);
+	printf("%s\n", userfilePath);
+	FILE *userFile = fopen(userfilePathArg, "r");
 	char* buffer = calloc(SL, sizeof(char));
 	hdata_t* userData;
 	size_t len = SL;
 	while (getline(&buffer, &len, userFile) >= 0) {
 		userData = string2hdata(buffer);
+		printf("Loaded %s in hash table\n", userData->uname);
 		INSERISCIHASH(userData->uname, (void*)userData, H);
 		userData = malloc(sizeof(hdata_t));
 	}

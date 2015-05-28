@@ -5,8 +5,11 @@
 #define RECV_OFFLINE		"Destinatario non connesso"
 #define CMD_NOT_FOUND		"Comando non trovato\n"
 
-void initLog() {
-	FILE* logfile = fopen(LOGFILE_NAME, "w");
+char* logPath;
+
+void initLog(char* logPathArg) {
+	logPath = strdup(logPathArg);
+	FILE* logfile = fopen(logPath, "w");
 	char* welcomeMessage = malloc(256 * sizeof(char));
 	sprintf(welcomeMessage, "** Chat Server started @ %s **", timestamp());
 
@@ -16,6 +19,7 @@ void initLog() {
 	fprintf(logfile, "%s\n", welcomeMessage);
 	for (i=0; i<strlen(welcomeMessage); i++)	fprintf(logfile, "*");
 	fprintf(logfile, "\n");
+	printf("created logfile on %s\n", logPath);
 
 	fclose(logfile);
 }
@@ -26,7 +30,7 @@ void writeAccessToLog(int isItALogin, char* uname) {
 		exit(1);
 	}
 
-	FILE *logfile = fopen(LOGFILE_NAME, "a");
+	FILE *logfile = fopen(logPath, "a");
 	char* toRet = calloc(SL, sizeof(char));
 	char *whichLog = malloc(6);
 	strcpy(whichLog, "logout");
@@ -38,7 +42,7 @@ void writeAccessToLog(int isItALogin, char* uname) {
 }
 
 void writeMessageToLog(char* sender, char* receiver, char* content){
-	FILE *logfile = fopen(LOGFILE_NAME, "a");
+	FILE *logfile = fopen(logPath, "a");
 	char* toRet = calloc(SL, sizeof(char));
 	sprintf(toRet, "%s:%s:%s:%s", timestamp(), sender, receiver, content);
 	fprintf(logfile, "%s\n", toRet);
@@ -46,7 +50,7 @@ void writeMessageToLog(char* sender, char* receiver, char* content){
 }
 
 void writeErrorToLog(char* content, char* username){
-	FILE *logfile = fopen(LOGFILE_NAME, "a");
+	FILE *logfile = fopen(logPath, "a");
 	fprintf(logfile, "Errore da %s: %s\n", username, content);
 	fclose(logfile);
 }

@@ -1,6 +1,3 @@
 Test the filling up of the ring buffer
 terminating setting go = 0
 ./chat-server user-file log-file
-null printed in logfile when bradcast
-implement stronger checks for #dest command
-check for mutex resources accesses

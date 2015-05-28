@@ -4,7 +4,7 @@ int go = 1;
 int activeThreads = 0;
 RingBuffer* ringBuffer;
 
-void Server(void);
+void Server(char*, char*);
 void* Dispatcher(void*);
 void* Worker(void*);
 
@@ -21,14 +21,15 @@ void signalHandler(int signum) {
 	exit(0);
 }
 
-void Server(){
+void Server(char* userfile, char* logfile){
 	printf("server pid: %d\n", getpid());
 
 	//Settando l'ambiente
 	H = CREAHASH();
-	loadUserfileInHash(H);
+	printf("#\n");
+	loadUserfileInHash(H, userfile);
 	pthread_mutex_init(&logfileMutex, NULL);
-	initLog();
+	initLog(logfile);
 	loggedList = initLoggedUser();
 	ringBuffer = malloc(sizeof(RingBuffer));
 	initRingBuffer(ringBuffer);
@@ -211,7 +212,7 @@ int main(int argc, char** argv) {
 	pid_t p;
 	p = fork();
 	if(p == 0)
-		Server();
+		Server(argv[1], argv[2]);
 	else if(p < 0)
 		printf("fork fallita");
 	exit(0);
