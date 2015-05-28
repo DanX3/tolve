@@ -81,7 +81,9 @@ void*  Dispatcher(void* data) {
 
 				//If the receiver is correct, send to him the message
 				pthread_mutex_lock(&logfileMutex);
-				writeMessageToLog(msg->sender,  msg->receiver, msg->content);
+				writeMessageToLog(	msg->sender,
+							getDataFrom(currentUser, H)->uname, 
+							msg->content);
 				pthread_mutex_unlock(&logfileMutex);
 
 				write( getDataFrom(currentUser, H)->sockid, marshal(msg), SL);

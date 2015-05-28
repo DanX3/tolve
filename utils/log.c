@@ -1,3 +1,9 @@
+#define LOGIN_DONE_YET		"Utente gia' connesso"
+#define USER_REGISTERED_YET	"Utente non regiostrato"
+#define HASH_COLLISION		"Collisione nella Hash Table"
+#define RECV_NOT_REGISTERED	"Destinatario inesistente"
+#define RECV_OFFLINE		"Destinatario non connesso"
+
 void initLog() {
 	FILE* logfile = fopen(LOGFILE_NAME, "w");
 	char* welcomeMessage = malloc(256 * sizeof(char));
