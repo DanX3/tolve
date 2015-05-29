@@ -40,14 +40,12 @@ void saveHashInUserfile(hash_t H) {
 
 void loadUserfileInHash(hash_t H, char* userfilePathArg){
 	userfilePath = strdup(userfilePathArg);
-	printf("%s\n", userfilePath);
 	FILE *userFile = fopen(userfilePathArg, "r");
 	char* buffer = calloc(SL, sizeof(char));
 	hdata_t* userData;
 	size_t len = SL;
 	while (getline(&buffer, &len, userFile) >= 0) {
 		userData = string2hdata(buffer);
-		printf("Loaded %s in hash table\n", userData->uname);
 		INSERISCIHASH(userData->uname, (void*)userData, H);
 		userData = malloc(sizeof(hdata_t));
 	}

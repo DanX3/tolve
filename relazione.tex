@@ -27,6 +27,8 @@
 
 
 \usepackage{mathpazo} % Use the Palatino font
+\usepackage{mathtools}
+\usepackage{listings}
 \usepackage[T1]{fontenc} % Required for accented characters
 
 \makeatletter
@@ -90,5 +92,17 @@ Non facciamo notare nulla di particolare nell'implementazione del server poiché
 \section*{Client}
 La funzione \texttt{reglog()} in realtà esegue solo la registrazione, ma il controllo passa immediatamente alla fase di login, che viene quindi eseguito in automatico. In questo modo si sovraccaricano le operazioni di comunicazione, dovendo ripetere un passaggio, riuscendo però a snellire il codice. Essendo un operazione che non viene eseguita molto frequentemente consideriamo accettabile questo compromesso. 
 	
+\section*{Hash Table}
+La gestione dello user-file nel nostro programma e' divisa in 3 passaggi: caricamento da file di testo nella hash, modifica della hash e salvataggio nel file di testo. Purtroppo la via più semplice non è quella più efficiente. Infatti al momento del salvataggio nel file, cancelliamo il file precedente per inserire nuovamente ogni voce nella hash aggiornata con le ultime registrazioni, e se per qualsiasi motivo il programma terminasse, perderemmo interamente la user-file. Anche se il programma terminasse in un altro punto, non riusciremmo a salvare le ultime modifiche alla hash che andrebbero irrimediabilmente perse. Per risolvere questi problemi sarebbe sufficiente aggiornare la user file ad ogni registrazione e per il salvataggio bisognerebbe creare un secondo file in cui salvare la hash e soltanto quando l'operazione è andata a buon fine, sovrascrivere il file originale con quello appena generato per proteggersi da accidentali perdite di dati.
 
+\section*{Marshalling}
+La consegna speficicava di gestire anche la lunghezza del messaggio, per poter leggere in modo preciso il messaggio, senza impiegare risorse per leggere caratteri nulli. Tuttavia abbiamo strutturato l'algoritmo diversamente: ogni campo viene separato da un carattere di delimitazione in modo da poter leggere il messaggio attraverso \texttt{strtok()}. In ogni caso leggiamo sempre blocchi di testo pari a 256 caratteri. Giustifichiamo questa scelta attraverso un rudimentale profiling: abbiamo scambiato $2^{20}$ messaggi di lunghezza 256 e di lunghezza 32 e abbiamo verificato che la differenza nei tempi non è sostanziale da poter giustificare un algoritmo più complesso. La maggior parte del tempo nella comunicazione viene spesa per gestire la comunicazione stessa e non nell'effettivo scambio di contenuto.\\
+Nel nostro algoritmo quindi manteniamo aggiornato il valore della lunghezza del messaggio, anche se non viene effettivamente utilizzato. 
+
+\section*{Error Checking}
+Oltre alle funzioni richieste dalla consegna abbiamo implementato ulteriori controlli per rendere più stabile l'intera esecuzione, per garantire un migliore esperienza all'utente ma anche a noi sviluppatori nelle fasi di testing. Per un elenco riassuntivo degli errori gestiti possiamo rimandare alle macro definite in \texttt{log.c}, elencate di seguito. \lstinputlisting[language=C, firstline=0, lastline=8]{utils/log.c}
+Originariamente questa tabella era stata disegnata per rappresentare in un unico file tutti i messaggi di errore che Client e Server dovevano scambiarsi. Successivamente vi abbiamo scritto ogni messaggio che poteva essere stampato anche a schermo, mantenendo nel codice solo delle macro. Facciamo notare che forniamo una soluzione a ogni problema elencato, fatta eccezione per la collisione in hash table. Infatti le funzioni di accesso alla hash table fornite non gestiscono questo caso e abbiamo deciso di non implementarle non essendo richiesto dalla consegna.\\
+Possiamo individuare 2 famiglie di errori: errori di \textit{Login} ed errori di \textit{Input}. Errori di Login non permettono l'accesso al server da parte del client con le attuali credenziali, mentre errori di Input avvengono dopo aver già stabilito una connessione che viene comunque mantenuta.\\
+Errori di Login sono particolarmente gravi perché arrivano a modificare la vita dei thread stessi, e richiedono quindi una buona gestione delle terminazioni, per evitare la chiusura inaspettata di un servizio.\\
+Errori di Input fanno semplicemente ignorare il comando appena inserito perché non rispetta la sintassi richiesta, ritornando comunque la shell all'utente.\\
 \end{document}

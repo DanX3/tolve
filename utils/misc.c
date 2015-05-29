@@ -14,8 +14,11 @@ int cmdMatcher(char* cmd) {
 	if (strncmp(cmd, CMD_LOGOUT, strlen(CMD_LOGOUT)) == 0 )	return MSG_LOGOUT;
 
 	if (strncmp(cmd, CMD_SEND, strlen(CMD_SEND)) == 0) {
+		//Solo una Broadcast puo' avere un ':' a indice 6
 		if (cmd[6] == ':')		return MSG_BRDCAST;
-		if ( strstr(cmd, ":") - cmd > 6)return MSG_SINGLE;
+		//Puo' essere un messaggio singolo solo se presenta 2 stringhe
+		//separate da un DELIM_CHAR
+		if ( strstr(cmd, DELIM_CHAR) - cmd > 6)	return MSG_SINGLE;
 	}
 	return 0;
 

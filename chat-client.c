@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 		else
 			username = argv[1];
 	} else {
-		printf("Error 2: ./chat-client -h for help\n");
+		printf(SHORT_HELP);
 		exit(2);
 	}
 

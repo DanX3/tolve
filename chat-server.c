@@ -26,7 +26,6 @@ void Server(char* userfile, char* logfile){
 
 	//Settando l'ambiente
 	H = CREAHASH();
-	printf("#\n");
 	loadUserfileInHash(H, userfile);
 	pthread_mutex_init(&logfileMutex, NULL);
 	initLog(logfile);
@@ -104,9 +103,11 @@ void*  Worker(void* data) {
 
 
 	while (go) {
+		bzero(input, sizeof(input));
 		if ( read(socket, input, SL) == 0 )
 			exit(1);
 		msg = unMarshal(input);
+			fprintf(stderr, "Read %c\n", msg->type);
 		switch(msg->type) {
 		case MSG_LOGIN:
 			username = msg->content;
@@ -138,12 +139,21 @@ void*  Worker(void* data) {
 			break;
 		case MSG_REGLOG: {
 			hdata_t *userInfo = string2hdata(msg->content);
-			if ( INSERISCIHASH(userInfo->uname, userInfo, H) == 0 ) {
-				SCError(HASH_COLLISION, msg);
-				writeErrorToLog(HASH_COLLISION, username);
-			} else 
-				SCOK(msg);
+			if ( CERCAHASH(userInfo->uname, H) != 0 ) {
+				SCError(USER_REGISTERED_YET, msg);
+				writeErrorToLog(USER_REGISTERED_YET, userInfo->uname);
+				write(socket, marshal(msg), SL);
+				pthread_exit(0);
+			}
 
+			if ( INSERISCIHASH(userInfo->uname, userInfo, H) == 0 ){
+				SCError(HASH_COLLISION, msg);
+				writeErrorToLog(HASH_COLLISION, userInfo->uname);
+				write(socket, marshal(msg), SL);
+				pthread_exit(0);
+			}
+
+			SCOK(msg);
 			write(socket, marshal(msg), SL);
 			break;
 		}
@@ -202,7 +212,6 @@ void*  Worker(void* data) {
 
 			pthread_exit(0);
 		}
-		bzero(input, sizeof(input));
 	}
 }
 
