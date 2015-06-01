@@ -1,11 +1,12 @@
 a.out
-client
+chat-client
+chat-server
 experiment.c
 kill.sh
 log-file
 *(copia)*
-server
 .*
 relazione.*
 !relazione.tex
 *.o
+workingServer.c

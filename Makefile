@@ -1,6 +1,6 @@
 CC=gcc
 
-all: chat-server chat-client
+all: chat-server chat-client 
 
 chat-server: chat-server.o utils/*.o
 	$(CC) -o chat-server chat-server.o utils/*.o -lpthread
@@ -18,9 +18,7 @@ utils/*.o: utils/*.c
 	$(CC) -c *utils/*.c
 	mv log.o utils/
 	mv stringList.o utils/
-	mv misc.o utils/
 	mv hdata.o utils/
-	mv hash.o utils/
 	mv message.o utils/
 	mv ringBuffer.o utils/
 

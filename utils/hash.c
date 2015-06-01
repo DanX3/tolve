@@ -1,7 +1,7 @@
 /*************************************/
 /* Library hash: schifano fabio 2013 */
 /*************************************/
-#include "lista.h"
+#include "lista.c"
 /* numero primo */
 #define HL 997
 
