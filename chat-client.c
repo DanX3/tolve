@@ -1,5 +1,4 @@
-#include "utils.h"
-
+include "utils/common.h"
 char *username, *input;
 int sock, go = 1;
 

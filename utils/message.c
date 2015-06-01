@@ -1,3 +1,5 @@
+#include "common.h"
+
 void createMessage(char type, char *sender, char *receiver, char *content, msg_t* msg) {
 	if (msg != 0)
 		bzero(msg, sizeof(msg));

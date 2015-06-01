@@ -1,6 +1,3 @@
-#ifndef COMMON_H
-#define COMMON_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,6 +23,18 @@
 #define CMD_LIST 	"#ls"
 #define CMD_SEND 	"#dest"
 #define HELP_PATH 	"help.txt"
+#define DELIM_CHAR	":"
+#define MAX_LOGGEDUSERS 256
+#define USERNAME_LENGTH 32
+
+#define LOGIN_DONE_YET		"Utente gia' connesso"
+#define USER_NOT_REGISTERED	"Utente non registrato"
+#define USER_REGISTERED_YET	"Utente gia' registrato"
+#define HASH_COLLISION		"Collisione nella Hash Table"
+#define RECV_NOT_REGISTERED	"Destinatario inesistente"
+#define RECV_OFFLINE		"Destinatario non connesso"
+#define CMD_NOT_FOUND		"Comando non trovato\n"
+#define SHORT_HELP			"./chat-client -h for help\n"
 
 #define max 2000
 #define BUFFER_SIZE 1000
@@ -56,5 +65,13 @@ typedef struct {
 	pthread_cond_t VUOTO;
 } RingBuffer;
 
-#endif
+typedef struct cella * lista;
+typedef lista          posizione;
 
+struct cella {
+  posizione precedente;
+  void *    elemento;
+  posizione successivo;
+};
+
+typedef lista * hash_t;

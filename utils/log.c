@@ -1,11 +1,5 @@
-#define LOGIN_DONE_YET		"Utente gia' connesso"
-#define USER_NOT_REGISTERED	"Utente non registrato"
-#define USER_REGISTERED_YET	"Utente gia' registrato"
-#define HASH_COLLISION		"Collisione nella Hash Table"
-#define RECV_NOT_REGISTERED	"Destinatario inesistente"
-#define RECV_OFFLINE		"Destinatario non connesso"
-#define CMD_NOT_FOUND		"Comando non trovato\n"
-#define SHORT_HELP		"./chat-client -h for help\n"
+#include "misc.c"
+
 char* logPath;
 
 void initLog(char* logPathArg) {

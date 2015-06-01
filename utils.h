@@ -1,18 +1,3 @@
-#include <pthread.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <time.h>
-#include <signal.h>
-#include "hash.h" //!Keep this for including string stdio and stdlib
-
-#define DELIM_CHAR ":"
-#define MAX_LOGGEDUSERS 256
-#define USERNAME_LENGTH 32
-
-typedef char** StringList;
-
 //misc
 char* timestamp(void);			//Restituisce il timestamp attuale
 int cmdMatcher(char*);			//restituisce il comando richiesto
@@ -57,10 +42,3 @@ void SCList(char*, msg_t*);		//
 void initRingBuffer(RingBuffer*);	//Inizializza un tipo di dato RingBuffer
 void writeBuffer(char*, RingBuffer*);	//Scrive un messaggio sul buffer circolare
 char* readBuffer(RingBuffer*);		//Legge un messaggio da buffer circolare
-
-#include "utils/misc.c"
-#include "utils/log.c"
-#include "utils/stringList.c"
-#include "utils/hdata.c"
-#include "utils/message.c"
-#include "utils/ringBuffer.c"

@@ -1,19 +1,11 @@
 /*************************************/
 /* Library hash: schifano fabio 2013 */
 /*************************************/
-
-#ifndef HASH_H
-#define HASH_H
-
-#include <string.h>
-
-#include "common.h"
 #include "lista.h"
-
 /* numero primo */
 #define HL 997
 
-typedef lista * hash_t;
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -86,5 +78,3 @@ int INSERISCIHASH (char * key, hdata_t * elem, hash_t H) {
 }
 
 //////////////////////////////////////////////////////////////////////
-
-#endif

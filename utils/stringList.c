@@ -1,3 +1,4 @@
+#include "common.h"
 StringList initLoggedUser() {
 	StringList loggedUser = calloc(MAX_LOGGEDUSERS, sizeof(char*));
 	return loggedUser; 

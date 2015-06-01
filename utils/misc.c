@@ -1,3 +1,5 @@
+#include "common.h"
+
 //Return a char[24] as a timestamp
 char* timestamp() {
 	time_t t = time(0);

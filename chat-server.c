@@ -1,5 +1,7 @@
+#include "utils/common.h"
+//#include "utils/hash.h"
+//#include "utils/lista.h"
 #include "utils.h"
-
 int go = 1;
 int activeThreads = 0;
 RingBuffer* ringBuffer;

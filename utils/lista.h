@@ -2,17 +2,7 @@
 /* Library list: schifano 2013       */
 /*************************************/
 
-#ifndef LISTA_H
-#define LISTA_H 
-
-typedef struct cella * lista;
-typedef lista          posizione;
-
-struct cella {
-  posizione precedente;
-  void *    elemento;
-  posizione successivo;
-};
+#include "common.h"
 
 
 lista CREALISTA () {
@@ -88,5 +78,4 @@ void CANCLISTA (posizione * p) {
   free(tmp);  
 }
 
-#endif
 

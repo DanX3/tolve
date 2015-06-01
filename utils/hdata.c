@@ -1,3 +1,4 @@
+#include "hash.c"
 char* userfilePath;
 
 hdata_t* string2hdata(char *str) {

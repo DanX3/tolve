@@ -1,3 +1,4 @@
+#include "common.h"
 void initRingBuffer (RingBuffer * b) {
 	pthread_mutex_init(&b->M,    NULL);
 	pthread_cond_init(&b->PIENO, NULL);
