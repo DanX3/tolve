@@ -31,16 +31,27 @@ char* marshal(msg_t *msg){
 	sprintf(toRet, "%c:%s:%s:%u:%s\n", 
 		msg->type, msg->sender, msg->receiver, msg->msglen, msg->content);
 	return toRet;
-
+}
+ 
+void marshalDirect(msg_t* msg, char* ret) {
+	sprintf(ret, "%c:%s:%s:%u:%s\n", 
+		msg->type, msg->sender, msg->receiver, msg->msglen, msg->content);
 }
 
 msg_t* unMarshal(char* str){
 	msg_t* toRet 	= calloc(1, sizeof(msg_t));
-	char* backup = strdup(str);
 	str = strtok(str, DELIM_CHAR);
 	toRet->type 	= str[0];
 	toRet->sender 	= strdup(strtok(0, DELIM_CHAR));
 	toRet->receiver = strdup(strtok(0, DELIM_CHAR));
 	toRet->msglen 	= atoi  (strtok(0, DELIM_CHAR));
 	toRet->content  = strdup(strtok(0, "\n"));
+	return toRet;
+}
+
+freeWrite(int sockid, msg_t* msg, int length) {
+	char *marshalled = calloc(length, sizeof(char));
+	marshalDirect(msg, marshalled);
+	write(sockid, marshalled, length);
+	free(marshalled);
 }

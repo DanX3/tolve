@@ -27,7 +27,6 @@ hdata_t* getDataFrom(char* username, hash_t H) {
 
 void saveHashInUserfile(hash_t H) {
 	FILE *userFile = fopen(userfilePath, "w");
-	char* buffer = calloc(SL, sizeof(char));
 	int i;
 	for (i=0; i<HL; i++) {
 		//Metodo per arrivare al contenuto della cella hash
@@ -35,6 +34,7 @@ void saveHashInUserfile(hash_t H) {
 		if ( user != 0 ) 
 			fprintf(userFile, "%s\n", hdata2string(user));
 	}
+	fclose(userFile);
 }
 
 
@@ -50,5 +50,7 @@ void loadUserfileInHash(hash_t H, char* userfilePathArg){
 		INSERISCIHASH(userData->uname, (void*)userData, H);
 		userData = malloc(sizeof(hdata_t));
 	}
+	free(buffer);
+	fclose(userFile);
 }
 

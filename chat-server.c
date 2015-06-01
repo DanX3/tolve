@@ -20,6 +20,8 @@ void signalHandler(int signum) {
 	saveHashInUserfile(H);
 	close(sock);
 	printf("Server interrupted: signal (%d) received\n", signum);
+	free(ringBuffer);
+	free(H);
 	exit(0);
 }
 
@@ -95,6 +97,8 @@ void*  Dispatcher(void* data) {
 		}
 		}
 	}
+	free(stringMessage);
+	free(msg);
 }
 
 void*  Worker(void* data) {
@@ -109,7 +113,6 @@ void*  Worker(void* data) {
 		if ( read(socket, input, SL) == 0 )
 			exit(1);
 		msg = unMarshal(input);
-			fprintf(stderr, "Read %c\n", msg->type);
 		switch(msg->type) {
 		case MSG_LOGIN:
 			username = msg->content;
@@ -215,17 +218,25 @@ void*  Worker(void* data) {
 			pthread_exit(0);
 		}
 	}
+	free(input);
+	free(msg);
+	free(username);
 }
 
 
 
 int main(int argc, char** argv) {
+/*
 	pid_t p;
 	p = fork();
 	if(p == 0)
+*/
+		
+		signal(SIGTERM, signalHandler);
 		Server(argv[1], argv[2]);
+/*
 	else if(p < 0)
 		printf("fork fallita");
 	exit(0);
-
+*/
 }

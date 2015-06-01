@@ -22,6 +22,9 @@ void* clientSender(void* data) {
 		}
 		write(sock, marshal(msg), SL);
 	}
+	free(input);
+	free(msg);
+	free(username);
 	printf("A presto %s!\n", username);
 	exit(0);
 }
@@ -51,6 +54,8 @@ void* clientListener(void* data) {
 			break;
 		}
 	}
+	free(buffer);
+	free(msg);
 }
 
 int main(int argc, char** argv) {
@@ -64,6 +69,7 @@ int main(int argc, char** argv) {
 			ssize_t read;
 			while ( (read = getline(&line, &len, help)) != -1 )
 				printf("%s", line);
+			fclose(help);
 			exit(0);
 		}
 
@@ -103,6 +109,10 @@ int main(int argc, char** argv) {
 		email = strdup(strtok(0, "\n"));
 		CSRelog(username, fullname, email, msg);
 		write(sock, marshal(msg), SL);
+		free(fullname);
+		free(email);
+		free(name);
+		free(surname);
 
 		input = calloc(SL, sizeof(char));
 		read(sock, input, SL);
@@ -112,7 +122,7 @@ int main(int argc, char** argv) {
 			exit(3);
 		}
 		printf("Sei stato registrato con successo\n");
-
+		free(input);
 	}
 
 	//Gestione del Login
@@ -128,6 +138,9 @@ int main(int argc, char** argv) {
 		exit(1);
 	} else
 		printf("Benvenuto %s!\n", username);
+	
+	free(input);
+	free(msg);
 		
 	
 	//Lancio dei thread sender e listener

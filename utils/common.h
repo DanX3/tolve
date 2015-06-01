@@ -34,7 +34,7 @@
 #define RECV_NOT_REGISTERED	"Destinatario inesistente"
 #define RECV_OFFLINE		"Destinatario non connesso"
 #define CMD_NOT_FOUND		"Comando non trovato\n"
-#define SHORT_HELP			"./chat-client -h for help\n"
+#define SHORT_HELP		"./chat-client -h for help\n"
 
 #define max 2000
 #define BUFFER_SIZE 1000

@@ -1,11 +1,6 @@
 #include "common.h"
 
 void createMessage(char type, char *sender, char *receiver, char *content, msg_t* msg) {
-	if (msg != 0)
-		bzero(msg, sizeof(msg));
-	else
-		msg = calloc(1, sizeof(msg_t));
-	
 	msg->type = type;
 	msg->sender = sender;
 	msg->receiver = receiver;
@@ -22,6 +17,7 @@ void CSRelog(char* username, char* fullname, char* email, msg_t* msg) {
 	char* userInfo = calloc(SL, sizeof(char));
 	sprintf(userInfo, "%s:%s:%s", username, fullname, email);
 	createMessage(MSG_REGLOG, 0, 0, userInfo, msg);
+	free(userInfo);
 }
 
 void CSList(msg_t* msg) {

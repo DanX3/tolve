@@ -16,6 +16,7 @@ void initLog(char* logPathArg) {
 	fprintf(logfile, "\n");
 
 	fclose(logfile);
+	free(welcomeMessage);
 }
 
 void writeAccessToLog(int isItALogin, char* uname) {
@@ -33,6 +34,7 @@ void writeAccessToLog(int isItALogin, char* uname) {
 	sprintf(toRet, "%s:%s:%s", timestamp(), whichLog, uname);
 	fprintf(logfile, "%s\n", toRet);
 	fclose(logfile);
+	free(toRet);
 }
 
 void writeMessageToLog(char* sender, char* receiver, char* content){
@@ -41,6 +43,7 @@ void writeMessageToLog(char* sender, char* receiver, char* content){
 	sprintf(toRet, "%s:%s:%s:%s", timestamp(), sender, receiver, content);
 	fprintf(logfile, "%s\n", toRet);
 	fclose(logfile);
+	free(toRet);
 }
 
 void writeErrorToLog(char* content, char* username){
