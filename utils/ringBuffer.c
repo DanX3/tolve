@@ -42,3 +42,4 @@ char* readBuffer (RingBuffer *b) {
   
 	return ret;
 }
+

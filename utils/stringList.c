@@ -13,10 +13,10 @@ void addLoggedUser(char* username, StringList db ) {
 }
 
 
-char* listLoggedUser(StringList db) {
+char* listLoggedUser(StringList db, int activeUsers) {
 	int i;
 	char* toRet = calloc(MAX_LOGGEDUSERS*USERNAME_LENGTH, sizeof(char));
-	for(i=0; i<MAX_LOGGEDUSERS; i++){
+	for(i=0; i<activeUsers; i++){
 		if (db[i] == 0)		continue;
 		sprintf(toRet,"%s%s:",toRet,db[i]);
 	}

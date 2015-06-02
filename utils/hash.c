@@ -6,6 +6,7 @@
 #define HL 997
 
 
+hash_t H;
 
 //////////////////////////////////////////////////////////////////////
 
@@ -43,7 +44,6 @@ hdata_t * CERCALISTA ( char * key, lista L ) {
 //////////////////////////////////////////////////////////////////////
 
 hash_t CREAHASH () {
-  hash_t H;
   int i;
   H = (hash_t) malloc(HL*sizeof(lista));
   for ( i=0; i < HL; i++ ) {
@@ -78,3 +78,9 @@ int INSERISCIHASH (char * key, hdata_t * elem, hash_t H) {
 }
 
 //////////////////////////////////////////////////////////////////////
+void DISTRUGGIHASH() {
+	int i;
+	for ( i=0; i < HL; i++ ) 
+		free(H[i]);
+	free(H);
+}

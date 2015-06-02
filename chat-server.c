@@ -21,7 +21,7 @@ void signalHandler(int signum) {
 	close(sock);
 	printf("Server interrupted: signal (%d) received\n", signum);
 	free(ringBuffer);
-	free(H);
+	DISTRUGGIHASH();
 	exit(0);
 }
 
@@ -64,14 +64,14 @@ void Server(char* userfile, char* logfile){
 	pthread_join(dispatcher, 0);
 }
 
-void*  Dispatcher(void* data) {
+void* Dispatcher(void* data) {
 	char* stringMessage = calloc(SL, sizeof(char));
 	msg_t* msg = calloc(1, sizeof(msg_t));
 	while (go) {
 		msg = unMarshal(readBuffer(ringBuffer));
 		switch(msg->type) {
 		case MSG_SINGLE:
-			write(getDataFrom(msg->receiver, H)->sockid, marshal(msg), SL);
+			freeWrite(getDataFrom(msg->receiver, H)->sockid, msg, SL);
 			break;
 		case MSG_BRDCAST: {
 			//SCBroadcast(msg->sender, msg->content, msg);
@@ -90,7 +90,7 @@ void*  Dispatcher(void* data) {
 							msg->content);
 				pthread_mutex_unlock(&logfileMutex);
 
-				write( getDataFrom(currentUser, H)->sockid, marshal(msg), SL);
+				freeWrite( getDataFrom(currentUser, H)->sockid, msg, SL);
 				usersWritten++;
 			}
 			break;
@@ -104,7 +104,7 @@ void*  Dispatcher(void* data) {
 void*  Worker(void* data) {
 	int socket = *(int*)data;
 	char *input = calloc(SL, sizeof(char));
-	msg_t* msg = calloc(1, sizeof(msg_t));
+	msg_t* msg;
 	char *username = calloc(SL, sizeof(char));
 
 
@@ -117,7 +117,6 @@ void*  Worker(void* data) {
 		case MSG_LOGIN:
 			username = msg->content;
 			strcpy(username, msg->content);
-			bzero(msg, sizeof(msg_t));
 			if ( checkLoggedUser(username, loggedList) ) {
 				SCError(LOGIN_DONE_YET, msg);
 				writeErrorToLog(LOGIN_DONE_YET, username);
@@ -133,7 +132,7 @@ void*  Worker(void* data) {
 			} 
 
 			SCOK(msg);
-			write(socket, marshal(msg), SL);
+			freeWrite(socket, msg, SL);
 			addLoggedUser(username, loggedList);
 			getDataFrom(username, H)->sockid = socket;
 			writeAccessToLog(1, username);
@@ -144,22 +143,31 @@ void*  Worker(void* data) {
 			break;
 		case MSG_REGLOG: {
 			hdata_t *userInfo = string2hdata(msg->content);
+
+			if ( strlen(userInfo->uname) > 31) {
+				SCError(USER_TOO_LONG, msg);
+				writeErrorToLog(USER_TOO_LONG, userInfo->uname);
+				freeWrite(socket, msg, SL);
+				pthread_exit(0);
+			}
+				
+
 			if ( CERCAHASH(userInfo->uname, H) != 0 ) {
 				SCError(USER_REGISTERED_YET, msg);
 				writeErrorToLog(USER_REGISTERED_YET, userInfo->uname);
-				write(socket, marshal(msg), SL);
+				freeWrite(socket, msg, SL);
 				pthread_exit(0);
 			}
 
 			if ( INSERISCIHASH(userInfo->uname, userInfo, H) == 0 ){
 				SCError(HASH_COLLISION, msg);
 				writeErrorToLog(HASH_COLLISION, userInfo->uname);
-				write(socket, marshal(msg), SL);
+				freeWrite(socket, msg, SL);
 				pthread_exit(0);
 			}
 
 			SCOK(msg);
-			write(socket, marshal(msg), SL);
+			freeWrite(socket, msg, SL);
 			break;
 		}
 		case MSG_SINGLE:
@@ -169,24 +177,23 @@ void*  Worker(void* data) {
 				writeErrorToLog(RECV_NOT_REGISTERED, username);
 				pthread_mutex_unlock(&activeThreadsMutex);
 
-				write(socket, marshal(msg), SL);
+				freeWrite(socket, msg, SL);
+				//write(socket, marshal(msg), SL);
 			} else
 			if ( checkLoggedUser(msg->receiver, loggedList) == 0) {
 				SCError(RECV_OFFLINE, msg);
 				pthread_mutex_lock(&activeThreadsMutex);
 				writeErrorToLog(RECV_OFFLINE, username);
 				pthread_mutex_unlock(&activeThreadsMutex);
-				write(socket, marshal(msg), SL);
+				//write(socket, marshal(msg), SL);
+				freeWrite(socket, msg, SL);
 			} else {
-				/*
-				int recvSock = getDataFrom(msg->receiver, H)->sockid;
-				SCSingle(username, msg->content, msg);
-				write(recvSock, marshal(msg), SL);
-				*/
-
 				msg->sender = username;
-				writeBuffer(marshal(msg), ringBuffer);
-
+				char* marshalled = calloc(SL, sizeof(char));
+				marshalDirect(msg, marshalled);
+				writeBuffer(marshalled, ringBuffer);
+				free(marshalled);
+				
 				pthread_mutex_lock(&logfileMutex);
 				writeMessageToLog(username,  msg->receiver, msg->content);
 				pthread_mutex_unlock(&logfileMutex);
@@ -195,11 +202,15 @@ void*  Worker(void* data) {
 			break;
 		case MSG_BRDCAST:
 			SCBroadcast(username, msg->content, msg);
-			writeBuffer(marshal(msg), ringBuffer);
+			char* marshalled = calloc(SL, sizeof(char));
+			marshalDirect(msg, marshalled);
+			writeBuffer(marshalled, ringBuffer);
+			free(marshalled);
 			break;
 		case MSG_LIST:
-			SCList(listLoggedUser(loggedList), msg);
-			write(socket, marshal(msg), SL);
+			SCList(listLoggedUser(loggedList, activeThreads), msg);
+			freeWrite(socket, msg, SL);
+			//write(socket, marshal(msg), SL);
 
 			break;
 		case MSG_LOGOUT:
@@ -217,6 +228,7 @@ void*  Worker(void* data) {
 
 			pthread_exit(0);
 		}
+		free(msg);
 	}
 	free(input);
 	free(msg);

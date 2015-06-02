@@ -11,14 +11,9 @@ hdata_t* string2hdata(char *str) {
 	return toRet;
 }
 
-char* hdata2string(hdata_t *val) {
-	if (val != 0) {
-		char* toRet = calloc(SL, sizeof(char));
-		sprintf(toRet, "%s:%s:%s", val->uname, val->fullname, val->email);
-		return toRet; 
-	} else {
-		return '\0';
-	}
+void hdata2string(hdata_t *val, char* ret) {
+	if (val != 0) 
+		sprintf(ret, "%s:%s:%s", val->uname, val->fullname, val->email);
 }
 
 hdata_t* getDataFrom(char* username, hash_t H) {
@@ -31,8 +26,12 @@ void saveHashInUserfile(hash_t H) {
 	for (i=0; i<HL; i++) {
 		//Metodo per arrivare al contenuto della cella hash
 		hdata_t* user= (hdata_t*)((*(H+i))->successivo)->elemento;
-		if ( user != 0 ) 
-			fprintf(userFile, "%s\n", hdata2string(user));
+		if ( user != 0 ) {
+			char* userData = calloc(SL, sizeof(char));
+			hdata2string(user, userData);
+			fprintf(userFile, "%s\n", userData);
+			free(userData);
+		}
 	}
 	fclose(userFile);
 }

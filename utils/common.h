@@ -33,6 +33,7 @@
 #define HASH_COLLISION		"Collisione nella Hash Table"
 #define RECV_NOT_REGISTERED	"Destinatario inesistente"
 #define RECV_OFFLINE		"Destinatario non connesso"
+#define USER_TOO_LONG		"Username troppo lungo"
 #define CMD_NOT_FOUND		"Comando non trovato\n"
 #define SHORT_HELP		"./chat-client -h for help\n"
 

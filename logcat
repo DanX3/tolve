@@ -1,0 +1,47 @@
+stringList
+==3863== 8,192 bytes in 1 blocks are definitely lost in loss record 22 of 23
+==3863==    at 0x402C109: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3863==    by 0x804AB05: listLoggedUser (in /home/ventu/tolve/chat-server)
+==3863==    by 0x80497A5: Worker (in /home/ventu/tolve/chat-server)
+==3863==    by 0x4054F6F: start_thread (pthread_create.c:312)
+==3863==    by 0x4156BED: clone (clone.S:129)
+
+hash
+==4082== 12,705 (11,964 direct, 741 indirect) bytes in 997 blocks are definitely lost in loss record 20 of 20
+==4082==    at 0x402A17C: malloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==4082==    by 0x8049915: CREALISTA (in /home/ventu/tolve/chat-server)
+==4082==    by 0x8049B75: CREAHASH (in /home/ventu/tolve/chat-server)
+==4082==    by 0x8048E8C: Server (in /home/ventu/tolve/chat-server)
+==4082==    by 0x8049901: main (in /home/ventu/tolve/chat-server)
+
+marshal in MSG_SINGLE
+==4201== 3,143 bytes in 13 blocks are definitely lost in loss record 28 of 28
+==4201==    at 0x402C109: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==4201==    by 0x8049FB8: marshal (in /home/ventu/tolve/chat-server)
+==4201==    by 0x80496E1: Dispatcher (in /home/ventu/tolve/chat-server)
+==4201==    by 0x4054F6F: start_thread (pthread_create.c:312)
+==4201==    by 0x4156BED: clone (clone.S:129)
+
+marshal in ringBuffer
+==4785== 3,072 bytes in 12 blocks are definitely lost in loss record 27 of 27
+==4785==    at 0x402C109: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==4785==    by 0x8049F90: marshal (in /home/ventu/tolve/chat-server)
+==4785==    by 0x80496B9: Worker (in /home/ventu/tolve/chat-server)
+==4785==    by 0x4054F6F: start_thread (pthread_create.c:312)
+==4785==    by 0x4156BED: clone (clone.S:129)
+
+marshal in MSG_BRDCAST
+==4849== 3,584 bytes in 14 blocks are definitely lost in loss record 27 of 27
+==4849==    at 0x402C109: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==4849==    by 0x8049FBE: marshal (in /home/ventu/tolve/chat-server)
+==4849==    by 0x8049761: Worker (in /home/ventu/tolve/chat-server)
+==4849==    by 0x4054F6F: start_thread (pthread_create.c:312)
+==4849==    by 0x4156BED: clone (clone.S:129)
+
+==4937== LEAK SUMMARY:
+==4937==    definitely lost: 2,797 bytes in 147 blocks
+==4937==    indirectly lost: 1,160 bytes in 101 blocks
+==4937==      possibly lost: 136 bytes in 1 blocks
+==4937==    still reachable: 1,348 bytes in 8 blocks
+==4937==         suppressed: 0 bytes in 0 blocks
+

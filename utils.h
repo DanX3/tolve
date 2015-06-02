@@ -20,7 +20,7 @@ void writeErrorToLog(char*, char*); 	//scrive un messaggio di errore su log-file
 //stringList
 StringList initLoggedUser();		//inizializza la lista di utenti connessi
 void addLoggedUser(char*, StringList);	//aggiunge un utente alla lista
-char* listLoggedUser(StringList);	//elenca gli utenti connessi restituendoli in una stringa
+char* listLoggedUser(StringList, int);	//elenca gli utenti connessi restituendoli in una stringa
 int checkLoggedUser(char*, StringList);	//controlla se un utente e' connesso
 void removeLoggedUser(char*, StringList);//rimuove un utente dalla lista degli utenti connessi
 

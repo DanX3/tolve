@@ -3,6 +3,7 @@
 char *username, *input;
 int sock, go = 1;
 
+
 void* clientSender(void* data) {
 	char* input = calloc(SL, sizeof(char));
 	size_t len = SL;
@@ -24,7 +25,6 @@ void* clientSender(void* data) {
 	}
 	free(input);
 	free(msg);
-	free(username);
 	printf("A presto %s!\n", username);
 	exit(0);
 }
