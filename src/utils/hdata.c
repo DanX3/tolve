@@ -12,7 +12,7 @@ hdata_t* string2hdata(char *str) {
 }
 
 void hdata2string(hdata_t *val, char* ret) {
-	if (val != 0) 
+	if (val != 0)
 		sprintf(ret, "%s:%s:%s", val->uname, val->fullname, val->email);
 }
 
@@ -41,6 +41,14 @@ void saveHashInUserfile(hash_t H) {
 void loadUserfileInHash(hash_t H, char* userfilePathArg){
 	userfilePath = strdup(userfilePathArg);
 	FILE *userFile = fopen(userfilePathArg, "r");
+
+	//Crea il file se non esiste ancora
+	if (userFile == 0) {
+		FILE *userFile = fopen(userfilePathArg, "w");
+		fclose(userFile);
+		return;
+	}
+
 	char* buffer = calloc(SL, sizeof(char));
 	hdata_t* userData;
 	size_t len = SL;
@@ -52,4 +60,3 @@ void loadUserfileInHash(hash_t H, char* userfilePathArg){
 	free(buffer);
 	fclose(userFile);
 }
-

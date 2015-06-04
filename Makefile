@@ -1,8 +1,9 @@
 CC=gcc
 CFLAGS= -Wall
 
-chat: chat-server chat-client 
-	
+all:chat
+chat: chat-server chat-client
+
 install:
 	mv chat-server bin/
 	mv chat-client bin/
@@ -21,12 +22,13 @@ chat-client.o:
 
 utils/*.o: src/utils/*.c
 	$(CC) -c src/utils/*.c
-	mv log.o src/utils/
-	mv stringList.o src/utils/
-	mv hdata.o src/utils/
-	mv message.o src/utils/
-	mv ringBuffer.o src/utils/
-	
-clean:	
+	cp log.o src/utils/
+	cp stringList.o src/utils/
+	cp hdata.o src/utils/
+	cp message.o src/utils/
+	cp ringBuffer.o src/utils/
+
+clean:
+	rm bin/*
 	rm *.o
 	rm src/utils/*.o

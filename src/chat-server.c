@@ -1,6 +1,4 @@
 #include "utils/common.h"
-//#include "utils/hash.h"
-//#include "utils/lista.h"
 #include "utils.h"
 int go = 1;
 int activeThreads = 0;
@@ -19,9 +17,9 @@ int sock, newSocket;
 void signalHandler(int signum) {
 	saveHashInUserfile(H);
 	close(sock);
-	printf("Server interrupted: signal (%d) received\n", signum);
 	free(ringBuffer);
-	DISTRUGGIHASH();
+	DISTRUGGIHASH(H);
+	printf("Server interrupted: signal (%d) received\n", signum);
 	exit(0);
 }
 
@@ -29,7 +27,7 @@ void Server(char* userfile, char* logfile){
 	printf("server pid: %d\n", getpid());
 
 	//Settando l'ambiente
-	H = (hash_t)CREAHASH();
+	H = CREAHASH();
 	loadUserfileInHash(H, userfile);
 	pthread_mutex_init(&logfileMutex, NULL);
 	initLog(logfile);
@@ -46,22 +44,22 @@ void Server(char* userfile, char* logfile){
 	my_addr.sin_family = AF_INET;
 	my_addr.sin_port = htons(5001);
 	my_addr.sin_addr.s_addr = INADDR_ANY;
+	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &my_addr, sizeof(int));
 	if (bind(sock, (struct sockaddr *) &my_addr, sizeof(my_addr)) < 0) {
 		perror("bind");
-		exit(-1);	
-	}	
+		exit(-1);
+	}
 	listen(sock, 10);
 #if 1
 	pthread_t dispatcher;
 	pthread_create(&dispatcher, 0, Dispatcher, 0);
-#endif	
+#endif
 	while(go){
 		newSocket = accept(sock, NULL, 0);
 		pthread_t t;
 		pthread_create(&t, 0, Worker, (void*)&newSocket);
 		pthread_detach(t);
 	}
-	pthread_join(dispatcher, 0);
 }
 
 void* Dispatcher(void* data) {
@@ -74,19 +72,19 @@ void* Dispatcher(void* data) {
 			freeWrite(getDataFrom(msg->receiver, H)->sockid, msg, SL);
 			break;
 		case MSG_BRDCAST: {
-			//SCBroadcast(msg->sender, msg->content, msg);
 			int usersWritten = 0, i = -1;
-			char *currentUser;
+			char *currentUser = calloc(USERNAME_LENGTH, sizeof(char));
 			while (usersWritten < activeThreads - 1) {
 				i++;
 				if (!existsUserAt(i, loggedList))		continue;
-				currentUser = (char*)getUserAt(i, loggedList);
+				bzero(currentUser, sizeof(currentUser));
+				getUserAt(i, loggedList, currentUser);
 				if ( strcmp( currentUser, msg->sender) == 0 )	continue;
 
 				//If the receiver is correct, send to him the message
 				pthread_mutex_lock(&logfileMutex);
 				writeMessageToLog(	msg->sender,
-							getDataFrom(currentUser, H)->uname, 
+							getDataFrom(currentUser, H)->uname,
 							msg->content);
 				pthread_mutex_unlock(&logfileMutex);
 
@@ -115,21 +113,20 @@ void*  Worker(void* data) {
 		msg = unMarshal(input);
 		switch(msg->type) {
 		case MSG_LOGIN:
-			username = msg->content;
 			strcpy(username, msg->content);
 			if ( checkLoggedUser(username, loggedList) ) {
 				SCError(LOGIN_DONE_YET, msg);
 				writeErrorToLog(LOGIN_DONE_YET, username);
-				write(socket, marshal(msg), SL);
+				freeWrite(socket, msg, SL);
 				pthread_exit(0);
 			}
 
 			if ( CERCAHASH(username, H) == 0 ) {
 				SCError(USER_NOT_REGISTERED, msg);
 				writeErrorToLog(USER_NOT_REGISTERED, username);
-				write(socket, marshal(msg), SL);
+				freeWrite(socket, msg, SL);
 				pthread_exit(0);
-			} 
+			}
 
 			SCOK(msg);
 			freeWrite(socket, msg, SL);
@@ -143,14 +140,13 @@ void*  Worker(void* data) {
 			break;
 		case MSG_REGLOG: {
 			hdata_t *userInfo = string2hdata(msg->content);
-
 			if ( strlen(userInfo->uname) > 31) {
 				SCError(USER_TOO_LONG, msg);
 				writeErrorToLog(USER_TOO_LONG, userInfo->uname);
 				freeWrite(socket, msg, SL);
 				pthread_exit(0);
 			}
-				
+
 
 			if ( CERCAHASH(userInfo->uname, H) != 0 ) {
 				SCError(USER_REGISTERED_YET, msg);
@@ -193,7 +189,7 @@ void*  Worker(void* data) {
 				marshalDirect(msg, marshalled);
 				writeBuffer(marshalled, ringBuffer);
 				free(marshalled);
-				
+
 				pthread_mutex_lock(&logfileMutex);
 				writeMessageToLog(username,  msg->receiver, msg->content);
 				pthread_mutex_unlock(&logfileMutex);
@@ -210,8 +206,6 @@ void*  Worker(void* data) {
 		case MSG_LIST:
 			SCList(listLoggedUser(loggedList, activeThreads), msg);
 			freeWrite(socket, msg, SL);
-			//write(socket, marshal(msg), SL);
-
 			break;
 		case MSG_LOGOUT:
 			removeLoggedUser(username, loggedList);
@@ -221,6 +215,7 @@ void*  Worker(void* data) {
 			pthread_mutex_unlock(&activeThreadsMutex);
 			free(input);
 			free(msg);
+			free(username);
 
 			pthread_mutex_lock(&activeThreadsMutex);
 			activeThreads--;
@@ -230,21 +225,22 @@ void*  Worker(void* data) {
 		}
 		free(msg);
 	}
-	free(input);
-	free(msg);
-	free(username);
 }
 
 
 
 int main(int argc, char** argv) {
+	/*
 	pid_t p;
 	p = fork();
 	if(p == 0) {
+		*/
 		signal(SIGTERM, signalHandler);
 		Server(argv[1], argv[2]);
+		/*
 	}
 	else if(p < 0)
 		printf("fork fallita");
 	exit(0);
+	*/
 }

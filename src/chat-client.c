@@ -54,8 +54,6 @@ void* clientListener(void* data) {
 			break;
 		}
 	}
-	free(buffer);
-	free(msg);
 }
 
 int main(int argc, char** argv) {
@@ -84,16 +82,16 @@ int main(int argc, char** argv) {
 		exit(2);
 	}
 
-		
+
 	//Gestione dell'apertura della socket
-	struct sockaddr_in server; 
+	struct sockaddr_in server;
 	sock = socket(AF_INET, SOCK_STREAM, 0);
-	
+
 	bzero(&server, sizeof(struct sockaddr_in));
 	server.sin_family = AF_INET;
 	server.sin_port = htons(5001);
 	server.sin_addr.s_addr = inet_addr("127.0.0.1");
-	
+
 	connect(sock, (struct sockaddr*) &server, sizeof(struct sockaddr_in));
 
 
@@ -108,11 +106,7 @@ int main(int argc, char** argv) {
 		sprintf(fullname, "%s %s", name, surname);
 		email = strdup(strtok(0, "\n"));
 		CSRelog(username, fullname, email, msg);
-		write(sock, marshal(msg), SL);
-		free(fullname);
-		free(email);
-		free(name);
-		free(surname);
+		freeWrite(sock, msg, SL);
 
 		input = calloc(SL, sizeof(char));
 		read(sock, input, SL);
@@ -127,7 +121,7 @@ int main(int argc, char** argv) {
 
 	//Gestione del Login
 	CSLogin(username, msg);
-	write(sock, marshal(msg), SL);
+	freeWrite(sock, msg, SL);
 
 	input = calloc(SL, sizeof(char));
 	read(sock, input, SL);
@@ -138,11 +132,11 @@ int main(int argc, char** argv) {
 		exit(1);
 	} else
 		printf("Benvenuto %s!\n", username);
-	
+
 	free(input);
 	free(msg);
-		
-	
+
+
 	//Lancio dei thread sender e listener
 	pthread_t sender, listener;
 	pthread_create(&sender, 0, clientSender, 0);
