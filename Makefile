@@ -1,29 +1,32 @@
 CC=gcc
+CFLAGS= -Wall
 
-all: chat-server chat-client 
+chat: chat-server chat-client 
+	
+install:
+	mv chat-server bin/
+	mv chat-client bin/
 
 chat-server: chat-server.o utils/*.o
-	$(CC) -o chat-server chat-server.o utils/*.o -lpthread
+	$(CC) $(CFLAGS) -o chat-server chat-server.o src/utils/*.o -lpthread
 
-chat-server.o:chat-server.c
-	$(CC) -c chat-server.c
+chat-server.o:
+	$(CC) -c src/chat-server.c
 
 chat-client:chat-client.o utils/*.o
-	$(CC) -o chat-client chat-client.o utils/*.o -lpthread
+	$(CC) $(CFLAGS) -o chat-client chat-client.o src/utils/*.o -lpthread
 
-chat-client.o:chat-client.c
-	$(CC) -c chat-client.c
+chat-client.o:
+	$(CC) -c src/chat-client.c
 
-utils/*.o: utils/*.c
-	$(CC) -c *utils/*.c
-	mv log.o utils/
-	mv stringList.o utils/
-	mv hdata.o utils/
-	mv message.o utils/
-	mv ringBuffer.o utils/
-
-utils/*.c:
-
-clean:
+utils/*.o: src/utils/*.c
+	$(CC) -c src/utils/*.c
+	mv log.o src/utils/
+	mv stringList.o src/utils/
+	mv hdata.o src/utils/
+	mv message.o src/utils/
+	mv ringBuffer.o src/utils/
+	
+clean:	
 	rm *.o
-	rm utils/*.o
+	rm src/utils/*.o

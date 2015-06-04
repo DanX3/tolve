@@ -1,3 +1,0 @@
-Test the filling up of the ring buffer
-terminating setting go = 0
-./chat-server user-file log-file

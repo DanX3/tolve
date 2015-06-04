@@ -22,7 +22,7 @@
 #define CMD_LOGOUT 	"#x"
 #define CMD_LIST 	"#ls"
 #define CMD_SEND 	"#dest"
-#define HELP_PATH 	"help.txt"
+#define HELP_PATH 	"../doc/help.txt"
 #define DELIM_CHAR	":"
 #define MAX_LOGGEDUSERS 256
 #define USERNAME_LENGTH 32

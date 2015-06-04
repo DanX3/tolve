@@ -4,7 +4,7 @@
 #include "utils.h"
 int go = 1;
 int activeThreads = 0;
-RingBuffer* ringBuffer;
+RingBuffer* ringBuffer;		//Tipo di dato per la gestione del buffer circolare
 
 void Server(char*, char*);
 void* Dispatcher(void*);
@@ -12,8 +12,8 @@ void* Worker(void*);
 
 pthread_mutex_t logfileMutex;
 pthread_mutex_t activeThreadsMutex;
-hash_t H;
-StringList loggedList;
+hash_t H;			//Tipo di dato hash table
+StringList loggedList;		//Tipo di dato per la gestione dei login
 int sock, newSocket;
 
 void signalHandler(int signum) {
@@ -29,7 +29,7 @@ void Server(char* userfile, char* logfile){
 	printf("server pid: %d\n", getpid());
 
 	//Settando l'ambiente
-	H = CREAHASH();
+	H = (hash_t)CREAHASH();
 	loadUserfileInHash(H, userfile);
 	pthread_mutex_init(&logfileMutex, NULL);
 	initLog(logfile);
@@ -80,7 +80,7 @@ void* Dispatcher(void* data) {
 			while (usersWritten < activeThreads - 1) {
 				i++;
 				if (!existsUserAt(i, loggedList))		continue;
-				currentUser = getUserAt(i, loggedList);
+				currentUser = (char*)getUserAt(i, loggedList);
 				if ( strcmp( currentUser, msg->sender) == 0 )	continue;
 
 				//If the receiver is correct, send to him the message
@@ -238,17 +238,13 @@ void*  Worker(void* data) {
 
 
 int main(int argc, char** argv) {
-/*
 	pid_t p;
 	p = fork();
-	if(p == 0)
-*/
-		
+	if(p == 0) {
 		signal(SIGTERM, signalHandler);
 		Server(argv[1], argv[2]);
-/*
+	}
 	else if(p < 0)
 		printf("fork fallita");
 	exit(0);
-*/
 }

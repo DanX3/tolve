@@ -6,7 +6,7 @@
 #define HL 997
 
 
-hash_t H;
+hash_t hashTable;
 
 //////////////////////////////////////////////////////////////////////
 
@@ -45,32 +45,32 @@ hdata_t * CERCALISTA ( char * key, lista L ) {
 
 hash_t CREAHASH () {
   int i;
-  H = (hash_t) malloc(HL*sizeof(lista));
+  hashTable = (hash_t) malloc(HL*sizeof(lista));
   for ( i=0; i < HL; i++ ) {
-    H[i] = CREALISTA(); 
+    hashTable[i] = CREALISTA(); 
   }
-  return H;
+  return hashTable;
 }
 
 //////////////////////////////////////////////////////////////////////
 // cerca un elemento nella tabella Hash
 // restituisce un "hdata_t *" oppure NULL se non esiste
  
-void * CERCAHASH(char * key, hash_t H) {
+void * CERCAHASH(char * key, hash_t hashTable) {
   int i;
   i = hashfunc(key);
-  return CERCALISTA(key, H[i]);
+  return CERCALISTA(key, hashTable[i]);
 }
 
 //////////////////////////////////////////////////////////////////////
 // inserisce l'elemento hdata_t * nella tabella hash H
 
-int INSERISCIHASH (char * key, hdata_t * elem, hash_t H) {
+int INSERISCIHASH (char * key, hdata_t * elem, hash_t hashTable) {
   int i;
   posizione p;
   i = hashfunc(key);
-  if ( CERCAHASH(key, H) == NULL ) {
-    p = H[i];
+  if ( CERCAHASH(key, hashTable) == NULL ) {
+    p = hashTable[i];
     INSLISTA((void *)elem, &p); 
     return 1;
   }
@@ -81,6 +81,6 @@ int INSERISCIHASH (char * key, hdata_t * elem, hash_t H) {
 void DISTRUGGIHASH() {
 	int i;
 	for ( i=0; i < HL; i++ ) 
-		free(H[i]);
-	free(H);
+		free(hashTable[i]);
+	free(hashTable);
 }
