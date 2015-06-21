@@ -26,7 +26,7 @@ void signalHandler(int signum) {
 void Server(char* userfile, char* logfile){
 	printf("server pid: %d\n", getpid());
 
-	//Settando l'ambiente
+	//Setting the environment
 	H = CREAHASH();
 	loadUserfileInHash(H, userfile);
 	pthread_mutex_init(&logfileMutex, NULL);
@@ -37,14 +37,13 @@ void Server(char* userfile, char* logfile){
 	signal(SIGTERM, signalHandler);
 	signal(SIGINT, signalHandler);
 
-	//Organizzazione socket server-side
+	//socket server-side organization 
 	struct sockaddr_in my_addr;
 	bzero(&my_addr,sizeof(struct sockaddr_in));
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	my_addr.sin_family = AF_INET;
 	my_addr.sin_port = htons(5001);
 	my_addr.sin_addr.s_addr = INADDR_ANY;
-	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &my_addr, sizeof(int));
 	if (bind(sock, (struct sockaddr *) &my_addr, sizeof(my_addr)) < 0) {
 		perror("bind");
 		exit(-1);
@@ -230,17 +229,13 @@ void*  Worker(void* data) {
 
 
 int main(int argc, char** argv) {
-	/*
 	pid_t p;
 	p = fork();
 	if(p == 0) {
-		*/
 		signal(SIGTERM, signalHandler);
 		Server(argv[1], argv[2]);
-		/*
 	}
 	else if(p < 0)
 		printf("fork fallita");
 	exit(0);
-	*/
 }

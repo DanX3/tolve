@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
 	}
 
 
-	//Gestione dell'apertura della socket
+	//Handling the socket opening
 	struct sockaddr_in server;
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 
 	msg_t* msg = calloc(1, sizeof(msg_t));
 
-	//Gestione della registrazione
+	//Handling the registration
 	if (haveToRegister) {
 		char* fullname = calloc(SL, sizeof(char));
 		char* email;
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
 		free(input);
 	}
 
-	//Gestione del Login
+	//Handling the login
 	CSLogin(username, msg);
 	freeWrite(sock, msg, SL);
 

@@ -29,6 +29,5 @@ utils/*.o: src/utils/*.c
 	cp ringBuffer.o src/utils/
 
 clean:
-	rm bin/*
 	rm *.o
 	rm src/utils/*.o
